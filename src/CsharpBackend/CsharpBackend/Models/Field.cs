@@ -4,6 +4,6 @@
     {
         public int Id { get; set; }
 
-        public List<CoreSampleImage> FieldImages { get; set; }
+        public List<ImageInfo> FieldImages { get; set; }
     }
 }
