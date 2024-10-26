@@ -1,3 +1,6 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using CsharpBackend.Data;
 
 namespace CsharpBackend
 {
@@ -6,6 +9,8 @@ namespace CsharpBackend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDbContext<CsharpBackendContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("CsharpBackendContext") ?? throw new InvalidOperationException("Connection string 'CsharpBackendContext' not found.")));
 
             // Add services to the container.
 

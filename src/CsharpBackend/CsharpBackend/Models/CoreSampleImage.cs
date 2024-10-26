@@ -8,8 +8,6 @@
 
         public string? PathToMask { get; set; }
 
-        public int ImageInfoId { get; set; }
-
-        virtual public ImageInfo info { get; set; }
+        virtual public ImageInfo Info { get; set; }
     }
 }

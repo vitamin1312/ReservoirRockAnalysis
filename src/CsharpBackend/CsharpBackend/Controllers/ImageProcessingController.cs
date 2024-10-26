@@ -1,24 +1,28 @@
 using Microsoft.AspNetCore.Mvc;
+using CsharpBackend.Models;
 
 namespace CsharpBackend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class ImageProcessingController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
 
-        private readonly ILogger<WeatherForecastController> _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        private readonly ILogger<ImageProcessingController> _logger;
+
+        public ImageProcessingController(ILogger<ImageProcessingController> logger)
         {
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet(Name = "Index")]
+        public string Index()
+        {
+            return "This is my Core Sample Images application...";
+        }
+
+/*        [HttpGet(Name = "GetCoreSampleImage")]
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
@@ -28,6 +32,6 @@ namespace CsharpBackend.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
-        }
+        }*/
     }
 }
