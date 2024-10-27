@@ -22,16 +22,12 @@ namespace CsharpBackend.Controllers
             return "This is my Core Sample Images application...";
         }
 
-/*        [HttpGet(Name = "GetCoreSampleImage")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet(Name = "GetImage/{PathToImage}")]
+        public string GetImage(string PathToImage)
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
-        }*/
+            return "This is my Core Sample Images application...";
+        }
+
+
     }
 }
