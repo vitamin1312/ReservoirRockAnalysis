@@ -11,6 +11,10 @@ __pycache__/
 *.jpeg
 *.png
 
+# neural network
+*.pkl
+*.onnx
+
 # Distribution / packaging
 .Python
 build/
