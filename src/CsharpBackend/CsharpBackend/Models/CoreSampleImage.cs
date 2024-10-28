@@ -1,7 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
-using System.IO;
-using System.Threading.Tasks;
+using Emgu.CV.Structure;
+using Emgu.CV.Util;
 
 
 namespace CsharpBackend.Models
@@ -30,37 +30,108 @@ namespace CsharpBackend.Models
             return new Mat(PathToImage, ImreadModes.Color);
         }
 
-        public Mat GetMaskMat ()
+        public Mat? GetMaskMat ()
         {
+            if (!File.Exists(PathToMask))
+                return null;
+
             return new Mat(PathToMask, ImreadModes.Grayscale);
         }
 
-        /*public Mat GetMaskImage ()
+        public Mat? GetMaskImageMat()
         {
-            Mat Mask = GetImageMat();
-            Mat ImageMask = new Mat(Mask.Size, DepthType.Default, 3);
+            Mat Mask = GetMaskMat();
 
-            byte[] MaskArray = new byte[Mask.Rows * Mask.Cols];
-            Mask.CopyTo(MaskArray);
-            byte PixelValue;
+            if (Mask is null || Mask.IsEmpty)
+            {
+                return null;
+            }
 
-            for (int i = 0; i < Mask.Rows; ++i)
+            return Mask2ImageMask(ref Mask);
+        }
+
+        public Mat? GetImageWithMaskMat()
+        {
+            Mat Image = GetImageMat();
+            Mat Mask = GetMaskMat();
+            Mat MaskImage = GetMaskImageMat();
+
+            if (Image is null || Image.IsEmpty
+                || MaskImage is null || MaskImage.IsEmpty
+                || Mask is null || Mask.IsEmpty)
+            {
+                return null;
+            }
+
+            var ImageWithMask = new Image<Bgr, byte>(Mask.Size);
+            Image<Bgr, byte> ConvertedImage = Image.ToImage<Bgr, byte>();
+            Image<Bgr, byte> ConvertedMaskImage = MaskImage.ToImage<Bgr, byte>();
+
+            using (Image<Gray, byte> ConvertedMask = Mask.ToImage<Gray, byte>())
             {
                 for (int j = 0; j < Mask.Cols; ++j)
                 {
-                    PixelValue = MaskArray[i * Mask.Rows + j];
-
-                    switch (PixelValue)
+                    for (int i = 0; i < Mask.Rows; ++i)
                     {
-                        case 0:
-                            color 
+                        if (ConvertedMask.Data[i, j, 0] == 0)
+                            SetColorFrom(ref ImageWithMask, ref ConvertedImage, i, j);
+                        else
+                            SetColorFrom(ref ImageWithMask, ref ConvertedMaskImage, i, j);
+
                     }
                 }
             }
 
-            
+            return ImageWithMask.Mat;
 
-            return ImageMask;
-        }*/
+        }
+
+        private void SetColor(
+            ref Image<Bgr, byte> Image,
+            int i, int j,
+            byte b, byte g, byte r
+            )
+        {
+            Image.Data[i, j, 0] = b;
+            Image.Data[i, j, 1] = g;
+            Image.Data[i, j, 2] = r;
+        }
+
+        private void SetColorFrom(
+            ref Image<Bgr, byte> ImageToSet,
+            ref Image<Bgr, byte> ImageToGet,
+            int i, int j)
+        {
+            ImageToSet.Data[i, j, 0] = ImageToGet.Data[i, j, 0];
+            ImageToSet.Data[i, j, 1] = ImageToGet.Data[i, j, 1];
+            ImageToSet.Data[i, j, 2] = ImageToGet.Data[i, j, 2];
+        }
+
+        private Mat? Mask2ImageMask (ref Mat Mask)
+        {
+
+
+            var ImageMask = new Image<Bgr, byte>(Mask.Size);
+
+            using (var ConvertedMask = Mask.ToImage<Gray, byte>())
+            {
+                for (int j = 0; j < Mask.Cols; ++j)
+                {
+                    for (int i = 0; i < Mask.Rows; ++i)
+                    {
+                        if (ConvertedMask.Data[i, j, 0] == 0)
+                            SetColor(ref ImageMask, i, j, 0, 0, 0);
+                        else if (ConvertedMask.Data[i, j, 0] == 1)
+                            SetColor(ref ImageMask, i, j, 0, 255, 0);
+                        else if (ConvertedMask.Data[i, j, 0] == 2)
+                            SetColor(ref ImageMask, i, j, 0, 0, 255);
+                        else if (ConvertedMask.Data[i, j, 0] == 3)
+                            SetColor(ref ImageMask, i, j, 0, 255, 255);
+                    }
+                }
+            }
+
+            return ImageMask.Mat;
+        }
     }
 }
