@@ -10,35 +10,29 @@ namespace TestBackend
         [Fact]
         public void Test1()
         {
-            int size = 512;
+            int size = 256;
             var neuralNetwork = new NeuralNetwork(
-                @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\resources\unetppforcsharp.onnx",
+                @"C:\Users\vikto\Downloads\unetppforcsharp.onnx",
                 size
             );
             var coreSampleImage = new CoreSampleImage()
             {
-                PathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\images\Kondur3_122842_1.jpg",
+                PathToImage = @"C:\Users\vikto\Documents\IT\AI\pore_segmentation\images\Kondur3_124583_1.jpg"
             };
 
             var image = coreSampleImage.GetImageMat();
-            
 
-            var resizedImage = new Mat(size, size, DepthType.Cv8U, 3);
-            CvInvoke.Resize(image, resizedImage, new System.Drawing.Size(size, size));
-            var rgbImage = new Mat(size, size, DepthType.Cv8U, 3);
-            CvInvoke.CvtColor(resizedImage, rgbImage, ColorConversion.Bgr2Rgb);
-            var floatImage = new Mat(size, size, DepthType.Cv32F, 3);
-            rgbImage.ConvertTo(floatImage, DepthType.Cv32F);
-            floatImage = floatImage / 127.5 - 1;
+            //image = NeuralNetwork.ResizeImage(image, 400, 200, 3);
 
+            var inputImage = NeuralNetwork.ImagePreprocessing(image);
+            var mask = NeuralNetwork.ProcessImageWithNN(inputImage);
+            var maskResized = NeuralNetwork.ResizeImage(mask, image.Cols, image.Rows, 3);
 
-            var mask = NeuralNetwork.ProcessImageWithNN(floatImage);
+            var pathToImage = @"C:\Users\vikto\Documents\IT\AI\pore_segmentation\test\image.jpg";
+            var pathToMask = @"C:\Users\vikto\Documents\IT\AI\pore_segmentation\test\mask.png";
 
-            var pathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\test\image.jpg";
-            var pathToMask = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\test\mask.png";
-
-            resizedImage.Save(pathToImage);
-            mask.Save(pathToMask);
+            image.Save(pathToImage);
+            maskResized.Save(pathToMask);
 
             coreSampleImage.PathToImage = pathToImage;
             coreSampleImage.PathToMask = pathToMask;

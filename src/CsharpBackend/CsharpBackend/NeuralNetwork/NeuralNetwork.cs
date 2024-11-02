@@ -5,6 +5,7 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 using System.Drawing;
 using Emgu.CV.CvEnum;
 using System.Security.Policy;
+using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -15,14 +16,17 @@ namespace CsharpBackend.NeuralNetwork
         private string PathToModel;
         static private InferenceSession _session;
         static private int ImageSize = 256;
+        static private int NumChannels = 3;
         static private int NumClasses = 3;
+        static public bool is_ready = false;
+
         public NeuralNetwork(string pathToModel, int imageSize)
         {
             PathToModel = pathToModel;
 
             if (!File.Exists(PathToModel))
             {
-                throw new ApplicationException("Unable to open model");
+                return;
             }
 
             //using var gpuSessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions.MakeSessionOptionWithCudaProvider(0);
@@ -32,6 +36,8 @@ namespace CsharpBackend.NeuralNetwork
                 );
 
             ImageSize = imageSize;
+
+            is_ready = true;
         }
         public static Mat ProcessImageWithNN(Mat CoreSampleImage)
         {
@@ -47,6 +53,41 @@ namespace CsharpBackend.NeuralNetwork
             if (results.FirstOrDefault()?.Value is not Tensor<float> output)
                 throw new ApplicationException("Unable to process pictures");
             return TensorToMat(output, ImageSize, ImageSize);
+        }
+
+        public static Mat ImagePreprocessing(Mat CoreSampleImage)
+        {
+            return NormalizeImage(
+                ResizeImage(
+                    CvtBgr2Rgb(CoreSampleImage),
+                    ImageSize,
+                    ImageSize,
+                    NumChannels
+                    )
+                );
+        }
+
+        private static Mat CvtBgr2Rgb(Mat CoreSampleImage)
+        {
+            var RgbImage = new Mat(ImageSize, ImageSize, DepthType.Cv8U, 3);
+            CvInvoke.CvtColor(CoreSampleImage, RgbImage, ColorConversion.Bgr2Rgb);
+            return RgbImage;
+        }
+
+        public static Mat ResizeImage(Mat Image, int NumCols, int NumRows, int NumImgChannels)
+        {
+            var ResizedImage = new Mat(NumCols, NumRows, DepthType.Cv8U, NumImgChannels);
+            CvInvoke.Resize(Image, ResizedImage, new System.Drawing.Size(NumCols, NumRows));
+            return ResizedImage;
+        }
+
+        private static Mat NormalizeImage(Mat CoreSampleImage)
+        {
+            var FloatImage = new Mat(ImageSize, ImageSize, DepthType.Cv32F, 3);
+            CoreSampleImage.ConvertTo(FloatImage, DepthType.Cv32F);
+            FloatImage = FloatImage / 127.5 - 1;
+
+            return FloatImage;
         }
 
 
@@ -89,7 +130,7 @@ namespace CsharpBackend.NeuralNetwork
                     MaxValueIdx = 0;
                     MaxValue = output[0, 0, i, j];
 
-                    for (int c = 1; c < NumClasses; ++c)
+                    for (int c = 1; c < NumClasses; c++)
                     {
                         if (output[0, c, i, j] > MaxValue)
                         {

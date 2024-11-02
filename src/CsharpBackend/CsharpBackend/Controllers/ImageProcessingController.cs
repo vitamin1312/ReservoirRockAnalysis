@@ -19,15 +19,7 @@ namespace CsharpBackend.Controllers
         [HttpGet(Name = "Index")]
         public string Index()
         {
-            return "This is my Core Sample Images application...";
+            return "This is my Core Sample Images web application...";
         }
-
-        [HttpGet(Name = "GetImage/{PathToImage}")]
-        public string GetImage(string PathToImage)
-        {
-            return "This is my Core Sample Images application...";
-        }
-
-
     }
 }
