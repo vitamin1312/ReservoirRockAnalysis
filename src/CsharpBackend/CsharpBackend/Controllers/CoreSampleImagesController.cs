@@ -26,7 +26,7 @@ namespace CsharpBackend
         }
 
         // GET: api/CoreSampleImages/5
-        [HttpGet("images/get/{id}")]
+        [HttpGet("images/getitem/{id}")]
         public async Task<ActionResult<CoreSampleImage>> GetCoreSampleImage(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
@@ -71,7 +71,7 @@ namespace CsharpBackend
         }
 
         // DELETE: api/CoreSampleImages/5
-        [HttpDelete("{id}")]
+        [HttpDelete("images/delete/{id}")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
@@ -79,6 +79,8 @@ namespace CsharpBackend
             {
                 return NotFound();
             }
+
+            coreSampleImage.DeleteItemFiles();
 
             _context.CoreSampleImage.Remove(coreSampleImage);
             await _context.SaveChangesAsync();
@@ -115,7 +117,6 @@ namespace CsharpBackend
                     await file.CopyToAsync(stream);
                 }
 
-                //coreSampleImage.Field = field;
                 coreSampleImage.Info = imageInfo;
 
                 _context.CoreSampleImage.Add(coreSampleImage);

@@ -24,6 +24,29 @@ namespace CsharpBackend.Models
                 $"{Guid.NewGuid()}.jpg");
         }
 
+        public bool DeleteImage()
+        {
+            if (!File.Exists(PathToImage))
+                return false;
+            File.Delete(PathToImage);
+            return true;
+
+        }
+
+        public bool DeleteMask()
+        {
+            if (!File.Exists(PathToMask))
+                return false;
+            File.Delete(PathToMask);
+            return true;
+        }
+
+        public void DeleteItemFiles ()
+        {
+            DeleteImage();
+            DeleteMask();
+        }
+
         public Mat? GetImageMat ()
         {
 
