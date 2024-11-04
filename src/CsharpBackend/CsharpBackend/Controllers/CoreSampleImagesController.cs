@@ -22,7 +22,7 @@ namespace CsharpBackend
         [Route("images/get")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImage()
         {
-            return await _context.CoreSampleImage.ToListAsync();
+            return await _context.CoreSampleImage.Include(image => image.Info).ToListAsync();
         }
 
         // GET: api/CoreSampleImages/5
@@ -70,17 +70,6 @@ namespace CsharpBackend
             return NoContent();
         }
 
-        // POST: api/CoreSampleImages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-/*        [HttpPost]
-        public async Task<ActionResult<CoreSampleImage>> PostCoreSampleImage(CoreSampleImage coreSampleImage)
-        {
-            _context.CoreSampleImage.Add(coreSampleImage);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
-        }*/
-
         // DELETE: api/CoreSampleImages/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
@@ -101,6 +90,17 @@ namespace CsharpBackend
         {
             return _context.CoreSampleImage.Any(e => e.Id == id);
         }
+
+        // POST: api/CoreSampleImages
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /*        [HttpPost]
+                public async Task<ActionResult<CoreSampleImage>> PostCoreSampleImage(CoreSampleImage coreSampleImage)
+                {
+                    _context.CoreSampleImage.Add(coreSampleImage);
+                    await _context.SaveChangesAsync();
+
+                    return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
+                }*/
 
         [HttpPost]
         [Route("images/upload")]
