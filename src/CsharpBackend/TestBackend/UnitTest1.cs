@@ -10,14 +10,14 @@ namespace TestBackend
         [Fact]
         public void Test1()
         {
-            int size = 256;
+            int size = (int)(1024 * 3.5);
             var neuralNetwork = new NeuralNetwork(
-                @"C:\Users\vikto\Downloads\unetppforcsharp.onnx",
+                @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\resources\unetppforcsharp.onnx",
                 size
             );
             var coreSampleImage = new CoreSampleImage()
             {
-                PathToImage = @"C:\Users\vikto\Documents\IT\AI\pore_segmentation\images\Kondur3_124583_1.jpg"
+                PathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\images\Kondur3_122842_1.jpg"
             };
 
             var image = coreSampleImage.GetImageMat();
@@ -28,8 +28,8 @@ namespace TestBackend
             var mask = NeuralNetwork.ProcessImageWithNN(inputImage);
             var maskResized = NeuralNetwork.ResizeImage(mask, image.Cols, image.Rows, 3);
 
-            var pathToImage = @"C:\Users\vikto\Documents\IT\AI\pore_segmentation\test\image.jpg";
-            var pathToMask = @"C:\Users\vikto\Documents\IT\AI\pore_segmentation\test\mask.png";
+            var pathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\test\image.jpg";
+            var pathToMask = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\test\mask.png";
 
             image.Save(pathToImage);
             maskResized.Save(pathToMask);

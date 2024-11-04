@@ -15,10 +15,14 @@ namespace CsharpBackend.Models
 
         virtual public ImageInfo? Info { get; set; }
 
-        private BitmapFileReaderMat ImageReader = new ();
-
 
         // Methods
+
+        public CoreSampleImage ()
+        {
+            PathToImage = Path.Combine(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles",
+                $"{Guid.NewGuid()}.jpg");
+        }
 
         public Mat? GetImageMat ()
         {

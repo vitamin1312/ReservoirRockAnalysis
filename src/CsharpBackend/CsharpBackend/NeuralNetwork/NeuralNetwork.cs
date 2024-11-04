@@ -2,10 +2,7 @@
 using Emgu.CV.Structure;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
-using System.Drawing;
 using Emgu.CV.CvEnum;
-using System.Security.Policy;
-using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -29,11 +26,9 @@ namespace CsharpBackend.NeuralNetwork
                 return;
             }
 
-            //using var gpuSessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions.MakeSessionOptionWithCudaProvider(0);
-            _session = new InferenceSession(
-                PathToModel
-                //gpuSessionOptions
-                );
+            var so = Microsoft.ML.OnnxRuntime.SessionOptions.MakeSessionOptionWithCudaProvider(0);
+            so.LogSeverityLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_VERBOSE;  // verbose to check node placements
+            _session = new InferenceSession(PathToModel, so);
 
             ImageSize = imageSize;
 
@@ -69,7 +64,7 @@ namespace CsharpBackend.NeuralNetwork
 
         private static Mat CvtBgr2Rgb(Mat CoreSampleImage)
         {
-            var RgbImage = new Mat(ImageSize, ImageSize, DepthType.Cv8U, 3);
+            var RgbImage = new Mat(CoreSampleImage.Cols, CoreSampleImage.Rows, DepthType.Cv8U, 3);
             CvInvoke.CvtColor(CoreSampleImage, RgbImage, ColorConversion.Bgr2Rgb);
             return RgbImage;
         }
