@@ -4,6 +4,7 @@ using CsharpBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CsharpBackend.Migrations
 {
     [DbContext(typeof(CsharpBackendContext))]
-    partial class CsharpBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20241105161930_AnotherTry2")]
+    partial class AnotherTry2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace CsharpBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ImageInfoId")
+                    b.Property<int?>("ImageInfoId")
                         .HasColumnType("int");
 
                     b.Property<string>("PathToImage")
@@ -100,9 +103,7 @@ namespace CsharpBackend.Migrations
                 {
                     b.HasOne("CsharpBackend.Models.ImageInfo", "ImageInfo")
                         .WithMany()
-                        .HasForeignKey("ImageInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ImageInfoId");
 
                     b.Navigation("ImageInfo");
                 });

@@ -4,6 +4,7 @@ using CsharpBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CsharpBackend.Migrations
 {
     [DbContext(typeof(CsharpBackendContext))]
-    partial class CsharpBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20241105154815_TryToEnableCascadeDelete")]
+    partial class TryToEnableCascadeDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace CsharpBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ImageInfoId")
+                    b.Property<int?>("ImageInfoId")
                         .HasColumnType("int");
 
                     b.Property<string>("PathToImage")
@@ -42,7 +45,9 @@ namespace CsharpBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ImageInfoId");
+                    b.HasIndex("ImageInfoId")
+                        .IsUnique()
+                        .HasFilter("[ImageInfoId] IS NOT NULL");
 
                     b.ToTable("CoreSampleImage");
                 });
@@ -99,10 +104,9 @@ namespace CsharpBackend.Migrations
             modelBuilder.Entity("CsharpBackend.Models.CoreSampleImage", b =>
                 {
                     b.HasOne("CsharpBackend.Models.ImageInfo", "ImageInfo")
-                        .WithMany()
-                        .HasForeignKey("ImageInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithOne()
+                        .HasForeignKey("CsharpBackend.Models.CoreSampleImage", "ImageInfoId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("ImageInfo");
                 });

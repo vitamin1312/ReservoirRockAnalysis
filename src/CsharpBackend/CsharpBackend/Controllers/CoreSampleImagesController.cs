@@ -17,16 +17,37 @@ namespace CsharpBackend
             _context.Database.EnsureCreated();
         }
 
-        // GET: api/CoreSampleImages
+        [HttpPost]
+        [Route("upload")]
+        async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
+            [FromForm] ImageInfo imageInfo)
+        {
+            if (file != null)
+            {
+                var coreSampleImage = new CoreSampleImage();
+
+                using (var stream = new FileStream(coreSampleImage.PathToImage, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                coreSampleImage.ImageInfo = imageInfo;
+
+                _context.CoreSampleImage.Add(coreSampleImage);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
+            }
+            return NoContent();
+        }
+
         [HttpGet]
-        [Route("images/get")]
+        [Route("get")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImage()
         {
             return await _context.CoreSampleImage.Include(image => image.ImageInfo).ToListAsync();
         }
 
-        // GET: api/CoreSampleImages/5
-        [HttpGet("images/getitem")]
+        [HttpGet("getitem/{id}")]
         public async Task<ActionResult<CoreSampleImage>> GetCoreSampleImage(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
@@ -39,16 +60,10 @@ namespace CsharpBackend
             return coreSampleImage;
         }
 
-        [HttpGet]
-        [Route("images/getwithmask")]
-        public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageWithMask()
-        {
-            return await _context.CoreSampleImage.Include(image => image.PathToMask != null).ToListAsync();
-        }
 
         // PUT: api/CoreSampleImages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("images/putitem/{id}")]
+        [HttpPut("putitem/{id}")]
         public async Task<IActionResult> PutImageInfo(int id, [FromForm] ImageInfo imageInfo)
         {
             if (id != imageInfo.Id)
@@ -79,17 +94,22 @@ namespace CsharpBackend
 
         // DELETE: api/CoreSampleImages/5
         [HttpDelete]
-        [Route("images/delete")]
+        [Route("deleteitem/{id}")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await _context.CoreSampleImage
+                .Include(ci => ci.ImageInfo)
+                .FirstOrDefaultAsync(ci => ci.Id == id);
+
             if (coreSampleImage == null)
             {
                 return NotFound();
             }
 
             coreSampleImage.DeleteItemFiles();
+            var imageInfo = coreSampleImage.ImageInfo;
 
+            _context.ImageInfo.Remove(imageInfo);
             _context.CoreSampleImage.Remove(coreSampleImage);
             await _context.SaveChangesAsync();
 
@@ -99,41 +119,6 @@ namespace CsharpBackend
         private bool CoreSampleImageExists(int id)
         {
             return _context.CoreSampleImage.Any(e => e.Id == id);
-        }
-
-        // POST: api/CoreSampleImages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /*        [HttpPost]
-                public async Task<ActionResult<CoreSampleImage>> PostCoreSampleImage(CoreSampleImage coreSampleImage)
-                {
-                    _context.CoreSampleImage.Add(coreSampleImage);
-                    await _context.SaveChangesAsync();
-
-                    return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
-                }*/
-
-        [HttpPost]
-        [Route("images/upload")]
-        async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
-            [FromForm] ImageInfo imageInfo)
-        {
-            if (file != null)
-            {
-                var coreSampleImage = new CoreSampleImage();
-
-                using (var stream = new FileStream(coreSampleImage.PathToImage, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                coreSampleImage.ImageInfo = imageInfo;
-
-                _context.CoreSampleImage.Add(coreSampleImage);
-                //_context.ImageInfo.Add(imageInfo);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
-            }
-            return NoContent();
         }
     }
 }
