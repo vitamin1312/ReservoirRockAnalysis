@@ -6,6 +6,7 @@ using CsharpBackend.NeuralNetwork;
 using Emgu.CV.Structure;
 using Emgu.CV;
 using System.CodeDom.Compiler;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CsharpBackend
 {
@@ -205,6 +206,7 @@ namespace CsharpBackend
         // PUT: api/CoreSampleImages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("putitem/{id}")]
+        [Authorize]
         public async Task<IActionResult> PutImageInfo(int id, [FromForm] ImageInfo imageInfo)
         {
             if (id != imageInfo.Id)
@@ -238,6 +240,7 @@ namespace CsharpBackend
         // DELETE: api/CoreSampleImages/5
         [HttpDelete]
         [Route("deleteitem/{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage
