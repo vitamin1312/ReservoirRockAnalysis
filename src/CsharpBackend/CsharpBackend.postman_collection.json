@@ -1,0 +1,260 @@
+{
+	"info": {
+		"_postman_id": "27d574ec-c6cc-4785-93b8-231fa16a82da",
+		"name": "CsharpBackend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38585963"
+	},
+	"item": [
+		{
+			"name": "upload image",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/Viktor/Documents/IT/ReservoirRockAnalysis/data/images/Kondur3_122842_3.jpg"
+						},
+						{
+							"key": "Name",
+							"value": "Vitya",
+							"type": "text"
+						},
+						{
+							"key": "Description",
+							"value": "sucks",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/images/upload",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"images",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all images",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/images/get/?id=4",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"images",
+						"get",
+						""
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "4"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get image by id",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "delete image by id",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "put image by id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\": 5,\r\n\"imageInfo\": {\r\n            \"id\": 5,\r\n            \"name\": \"agsfdafgds\",\r\n            \"description\": \"adgfagfd\",\r\n            \"uploadDate\": null,\r\n            \"creationDate\": null,\r\n            \"fieldId\": null,\r\n            \"field\": null}\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/images/putitem",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"images",
+						"putitem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create field",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "Name",
+							"value": "Field",
+							"type": "text"
+						},
+						{
+							"key": "Description",
+							"value": "no",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7217/api/Fields/create",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"Fields",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all fields",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/fields/get",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"fields",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get field by id",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "delete field by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/Fields/delete/2",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"Fields",
+						"delete",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "put field by id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "Name",
+							"value": "NewName",
+							"type": "text"
+						},
+						{
+							"key": "Description",
+							"value": "NewDescription",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://localhost:7217/api/Fields/putitem/2",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"Fields",
+						"putitem",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

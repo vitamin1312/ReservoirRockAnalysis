@@ -31,6 +31,8 @@ namespace CsharpBackend
                     await file.CopyToAsync(stream);
                 }
 
+                checkFieldInInfo(imageInfo);
+
                 coreSampleImage.ImageInfo = imageInfo;
 
                 _context.CoreSampleImage.Add(coreSampleImage);
@@ -70,6 +72,8 @@ namespace CsharpBackend
             {
                 return BadRequest();
             }
+
+            checkFieldInInfo(imageInfo);
 
             _context.Entry(imageInfo).State = EntityState.Modified;
 
@@ -119,6 +123,18 @@ namespace CsharpBackend
         private bool CoreSampleImageExists(int id)
         {
             return _context.CoreSampleImage.Any(e => e.Id == id);
+        }
+
+        private bool FieldExists(int id)
+        {
+            return _context.Field.Any(e => e.Id == id);
+        }
+
+        private void checkFieldInInfo (ImageInfo imageInfo)
+        {
+            int fieldId = Convert.ToInt32(imageInfo.FieldId);
+            if (imageInfo.FieldId != null && !FieldExists(fieldId))
+                imageInfo.FieldId = null;
         }
     }
 }
