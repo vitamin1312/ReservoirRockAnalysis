@@ -4,6 +4,7 @@ using CsharpBackend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CsharpBackend.Migrations
 {
     [DbContext(typeof(CsharpBackendContext))]
-    partial class CsharpBackendContextModelSnapshot : ModelSnapshot
+    [Migration("20241104183745_AddedFieldId")]
+    partial class AddedFieldId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace CsharpBackend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("ImageInfoId")
+                    b.Property<int>("ImageInfoId")
                         .HasColumnType("int");
 
                     b.Property<string>("PathToImage")
@@ -58,6 +61,9 @@ namespace CsharpBackend.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("FieldId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -80,7 +86,7 @@ namespace CsharpBackend.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("FieldId")
+                    b.Property<int>("FieldId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -100,7 +106,9 @@ namespace CsharpBackend.Migrations
                 {
                     b.HasOne("CsharpBackend.Models.ImageInfo", "ImageInfo")
                         .WithMany()
-                        .HasForeignKey("ImageInfoId");
+                        .HasForeignKey("ImageInfoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ImageInfo");
                 });
@@ -109,7 +117,9 @@ namespace CsharpBackend.Migrations
                 {
                     b.HasOne("CsharpBackend.Models.Field", "Field")
                         .WithMany("FieldImages")
-                        .HasForeignKey("FieldId");
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Field");
                 });

@@ -15,6 +15,7 @@ namespace CsharpBackend.Models
         [DataType(DataType.Date)]
         public DateOnly? CreationDate { get; set; }
 
+        public int? FieldId { get; set; }
         virtual public Field? Field { get; set; }
     }
 }

@@ -8,6 +8,6 @@
 
         public string? Description { get; set; }
 
-        public ICollection<ImageInfo>? FieldImages { get; set; }
+        public ICollection<ImageInfo>? FieldImages { get; } = new List<ImageInfo>();
     }
 }

@@ -22,11 +22,11 @@ namespace CsharpBackend
         [Route("images/get")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImage()
         {
-            return await _context.CoreSampleImage.Include(image => image.Info).ToListAsync();
+            return await _context.CoreSampleImage.Include(image => image.ImageInfo).ToListAsync();
         }
 
         // GET: api/CoreSampleImages/5
-        [HttpGet("images/getitem/{id}")]
+        [HttpGet("images/getitem")]
         public async Task<ActionResult<CoreSampleImage>> GetCoreSampleImage(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
@@ -39,17 +39,25 @@ namespace CsharpBackend
             return coreSampleImage;
         }
 
+        [HttpGet]
+        [Route("images/getwithmask")]
+        public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageWithMask()
+        {
+            return await _context.CoreSampleImage.Include(image => image.PathToMask != null).ToListAsync();
+        }
+
         // PUT: api/CoreSampleImages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCoreSampleImage(int id, CoreSampleImage coreSampleImage)
+        [HttpPut]
+        [Route("images/putitem")]
+        public async Task<IActionResult> PutCoreSampleImage(int id, [FromForm] ImageInfo imageInfo)
         {
-            if (id != coreSampleImage.Id)
+            if (id != imageInfo.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(coreSampleImage).State = EntityState.Modified;
+            _context.Entry(imageInfo).State = EntityState.Modified;
 
             try
             {
@@ -71,7 +79,8 @@ namespace CsharpBackend
         }
 
         // DELETE: api/CoreSampleImages/5
-        [HttpDelete("images/delete/{id}")]
+        [HttpDelete]
+        [Route("images/delete")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
@@ -106,7 +115,8 @@ namespace CsharpBackend
 
         [HttpPost]
         [Route("images/upload")]
-        async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file, [FromForm] ImageInfo imageInfo)
+        async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
+            [FromForm] ImageInfo imageInfo)
         {
             if (file != null)
             {
@@ -117,15 +127,14 @@ namespace CsharpBackend
                     await file.CopyToAsync(stream);
                 }
 
-                coreSampleImage.Info = imageInfo;
+                coreSampleImage.ImageInfo = imageInfo;
 
                 _context.CoreSampleImage.Add(coreSampleImage);
+                //_context.ImageInfo.Add(imageInfo);
                 await _context.SaveChangesAsync();
                 return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
             }
-
             return NoContent();
-            
         }
     }
 }

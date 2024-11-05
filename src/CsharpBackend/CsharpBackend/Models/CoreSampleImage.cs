@@ -13,7 +13,9 @@ namespace CsharpBackend.Models
 
         public string? PathToMask { get; set; }
 
-        virtual public ImageInfo? Info { get; set; }
+        public int? ImageInfoId { get; set; }
+
+        virtual public ImageInfo? ImageInfo { get; set; }
 
 
         // Methods
