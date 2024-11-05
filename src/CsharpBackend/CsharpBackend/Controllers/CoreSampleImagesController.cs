@@ -48,9 +48,8 @@ namespace CsharpBackend
 
         // PUT: api/CoreSampleImages/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut]
-        [Route("images/putitem")]
-        public async Task<IActionResult> PutCoreSampleImage(int id, [FromForm] ImageInfo imageInfo)
+        [HttpPut("images/putitem/{id}")]
+        public async Task<IActionResult> PutImageInfo(int id, [FromForm] ImageInfo imageInfo)
         {
             if (id != imageInfo.Id)
             {
