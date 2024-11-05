@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using CsharpBackend.Data;
+using CsharpBackend.NeuralNetwork;
 
 namespace CsharpBackend
 {
@@ -18,6 +19,7 @@ namespace CsharpBackend
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<INetworkManager, NetworkManager>();
 
             var app = builder.Build();
 

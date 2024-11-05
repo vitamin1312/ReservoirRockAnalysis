@@ -2,6 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using CsharpBackend.Data;
 using CsharpBackend.Models;
+using CsharpBackend.NeuralNetwork;
+using Emgu.CV.Structure;
+using Emgu.CV;
+using System.CodeDom.Compiler;
 
 namespace CsharpBackend
 {
@@ -11,11 +15,13 @@ namespace CsharpBackend
     {
         private readonly CsharpBackendContext _context;
         private int MaxFileLength = 15 * 1024 * 1024;
+        private INetworkManager _networkManager;
 
-        public CoreSampleImagesController(CsharpBackendContext context)
+        public CoreSampleImagesController(CsharpBackendContext context, INetworkManager networkManager)
         {
             _context = context;
             _context.Database.EnsureCreated();
+            _networkManager = networkManager;
         }
 
         [HttpPost]
@@ -108,12 +114,9 @@ namespace CsharpBackend
             if (coreSampleImage == null)
                 return NotFound();
 
-            var result = PhysicalFile(coreSampleImage.PathToImage, "image/jpeg");
+            return PhysicalFile(coreSampleImage.PathToImage, "image/jpeg");
 
-            if (result == null)
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "Can't read file" });
-            return result;
+
 
         }
 
@@ -125,34 +128,76 @@ namespace CsharpBackend
             if (coreSampleImage == null || coreSampleImage.PathToMask == null)
                 return NotFound();
 
-            try
-            {
-                return PhysicalFile(coreSampleImage.PathToMask, "image/png");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "Can't read file" });
-            }
+            return PhysicalFile(coreSampleImage.PathToMask, "image/png");
         }
+
 
         [HttpGet("getmaskimagefile/{id}")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetMaskImageFile(int id)
         {
             var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
 
-            if (coreSampleImage == null || coreSampleImage.PathToMask == null)
+            if (coreSampleImage == null)
                 return NotFound();
+
+            var maskImage = coreSampleImage.GetMaskImageMat();
+
+            if (maskImage == null)
+                return NotFound();
+
+            var tempFiles = new TempFileCollection();
+            string file = tempFiles.AddExtension("jpg");
+            maskImage.Save(file);
+            return PhysicalFile(file, "image/jpeg");
+        }
+
+        [HttpGet("getimagewithmaskfile/{id}")]
+        public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetImageWithMaskFile(int id)
+        {
+            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+
+            if (coreSampleImage == null)
+                return NotFound();
+
+            var maskImage = coreSampleImage.GetImageWithMaskMat();
+
+            if (maskImage == null)
+                return NotFound();
+
+            var tempFiles = new TempFileCollection();
+            string file = tempFiles.AddExtension("jpg");
+            maskImage.Save(file);
+            return PhysicalFile(file, "image/jpeg");
+        }
+
+        [HttpGet("predict/{id}")]
+        public async Task<ActionResult<CoreSampleImage>> PredictMaskForItem(int id)
+        {
+            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+
+            if (coreSampleImage == null)
+            {
+                return NotFound();
+            }
+            
+            var pathToMask = coreSampleImage.GenerateMaskPath();
+
+            _networkManager.Predict(coreSampleImage.PathToImage, pathToMask);
+            coreSampleImage.PathToMask = pathToMask;
+
+            _context.Entry(coreSampleImage).State = EntityState.Modified;
 
             try
             {
-                return PhysicalFile(coreSampleImage.PathToMask, "image/png");
+                await _context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (DbUpdateConcurrencyException)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = ex.Message });
+
+                    throw;
             }
+
+            return coreSampleImage;
         }
 
 

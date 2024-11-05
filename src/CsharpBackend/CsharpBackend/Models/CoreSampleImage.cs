@@ -26,6 +26,15 @@ namespace CsharpBackend.Models
                 $"{Guid.NewGuid()}.jpg");
         }
 
+        public string GenerateMaskPath ()
+        {
+            if (PathToMask == null)
+                return Path.Combine(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles",
+                    $"{Guid.NewGuid()}.png");
+            else
+                return PathToMask;
+        }
+
         public bool DeleteImage()
         {
             if (!File.Exists(PathToImage))
