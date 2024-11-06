@@ -1,11 +1,72 @@
 {
 	"info": {
-		"_postman_id": "845d48d7-a78c-49fe-a274-7c95539d9beb",
+		"_postman_id": "f4acd403-6d68-47cb-809a-ff710dc495f8",
 		"name": "CsharpBackend",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "38585963"
 	},
 	"item": [
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"login\": \"admin\",\r\n  \"password\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:7217/api/Account/login?Login=admin&Password=admin",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"Account",
+						"login"
+					],
+					"query": [
+						{
+							"key": "Login",
+							"value": "admin"
+						},
+						{
+							"key": "Password",
+							"value": "admin"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/Account/users",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"Account",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
 		{
 			"name": "upload image",
 			"request": {
@@ -17,7 +78,7 @@
 						{
 							"key": "file",
 							"type": "file",
-							"src": "/C:/Users/Viktor/Documents/IT/ReservoirRockAnalysis/data/images/Kondur3_122842_3.jpg"
+							"src": "/C:/Users/vikto/Documents/IT/AI/pore_segmentation/images/Kondur3_122954_3.jpg"
 						},
 						{
 							"key": "Name",
@@ -26,13 +87,13 @@
 						},
 						{
 							"key": "Description",
-							"value": "sucks",
+							"value": "MyImage",
 							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "https://localhost:7217/api/CoreSampleImages/images/upload",
+					"raw": "https://localhost:7217/api/CoreSampleImages/upload",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -41,7 +102,6 @@
 					"path": [
 						"api",
 						"CoreSampleImages",
-						"images",
 						"upload"
 					]
 				}
@@ -54,6 +114,16 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{admin_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -66,7 +136,7 @@
 					}
 				},
 				"url": {
-					"raw": "https://localhost:7217/api/CoreSampleImages/images/get/?id=4",
+					"raw": "https://localhost:7217/api/CoreSampleImages/get",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -75,15 +145,7 @@
 					"path": [
 						"api",
 						"CoreSampleImages",
-						"images",
-						"get",
-						""
-					],
-					"query": [
-						{
-							"key": "id",
-							"value": "4"
-						}
+						"get"
 					]
 				}
 			},
@@ -95,7 +157,192 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://localhost:7217/api/CoreSampleImages/getitem/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getitem",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get image from field",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getfromfield/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getfromfield",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get images with mask",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getwithmask",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getwithmask"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get images without mask",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getwithoutmask",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getwithoutmask"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get image file",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getimagefile/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getimagefile",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get mask file",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getmaskfile/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getmaskfile",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get mask image file",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getmaskimagefile/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getmaskimagefile",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get image with mask file",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/getimagewithmaskfile/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"getimagewithmaskfile",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "generate mask",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost:7217/api/CoreSampleImages/predict/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"predict",
+						"1"
+					]
 				}
 			},
 			"response": []
@@ -103,10 +350,21 @@
 		{
 			"name": "delete image by id",
 			"request": {
-				"method": "GET",
+				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://localhost:7217/api/CoreSampleImages/delete/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"CoreSampleImages",
+						"delete",
+						"1"
+					]
 				}
 			},
 			"response": []
@@ -121,7 +379,7 @@
 					"raw": "{\"id\": 5,\r\n\"imageInfo\": {\r\n            \"id\": 5,\r\n            \"name\": \"agsfdafgds\",\r\n            \"description\": \"adgfagfd\",\r\n            \"uploadDate\": null,\r\n            \"creationDate\": null,\r\n            \"fieldId\": null,\r\n            \"field\": null}\r\n}"
 				},
 				"url": {
-					"raw": "https://localhost:7217/api/CoreSampleImages/images/putitem",
+					"raw": "https://localhost:7217/api/CoreSampleImages/putitem/1?Id=1&Name=NewName",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -130,8 +388,18 @@
 					"path": [
 						"api",
 						"CoreSampleImages",
-						"images",
-						"putitem"
+						"putitem",
+						"1"
+					],
+					"query": [
+						{
+							"key": "Id",
+							"value": "1"
+						},
+						{
+							"key": "Name",
+							"value": "NewName"
+						}
 					]
 				}
 			},
@@ -158,7 +426,7 @@
 					]
 				},
 				"url": {
-					"raw": "https://localhost:7217/api/Fields/create",
+					"raw": "https://localhost:7217/api/Fields/create?Name=Field",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -168,6 +436,12 @@
 						"api",
 						"Fields",
 						"create"
+					],
+					"query": [
+						{
+							"key": "Name",
+							"value": "Field"
+						}
 					]
 				}
 			},
@@ -179,7 +453,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:7217/api/CoreSampleImages/fields/get",
+					"raw": "https://localhost:7217/api/fields/get",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -187,7 +461,6 @@
 					"port": "7217",
 					"path": [
 						"api",
-						"CoreSampleImages",
 						"fields",
 						"get"
 					]
@@ -201,7 +474,18 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "https://localhost:7217/api/fields/getitem/1",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "7217",
+					"path": [
+						"api",
+						"fields",
+						"getitem",
+						"1"
+					]
 				}
 			},
 			"response": []
@@ -209,10 +493,10 @@
 		{
 			"name": "delete field by id",
 			"request": {
-				"method": "GET",
+				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "https://localhost:7217/api/Fields/delete/2",
+					"raw": "https://localhost:7217/api/Fields/deleteitem/1",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -221,8 +505,8 @@
 					"path": [
 						"api",
 						"Fields",
-						"delete",
-						"2"
+						"deleteitem",
+						"1"
 					]
 				}
 			},
@@ -245,11 +529,16 @@
 							"key": "Description",
 							"value": "NewDescription",
 							"type": "text"
+						},
+						{
+							"key": "Id",
+							"value": "1",
+							"type": "text"
 						}
 					]
 				},
 				"url": {
-					"raw": "https://localhost:7217/api/Fields/putitem/2",
+					"raw": "https://localhost:7217/api/fields/putitem/1?Id=1&Name=NewName",
 					"protocol": "https",
 					"host": [
 						"localhost"
@@ -257,13 +546,51 @@
 					"port": "7217",
 					"path": [
 						"api",
-						"Fields",
+						"fields",
 						"putitem",
-						"2"
+						"1"
+					],
+					"query": [
+						{
+							"key": "Id",
+							"value": "1"
+						},
+						{
+							"key": "Name",
+							"value": "NewName"
+						}
 					]
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "admin_token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzMwODg1NjYwLCJleHAiOjE3MzA4ODkyNjAsImlzcyI6IkkiLCJhdWQiOiJBUEljbGllbnRzIn0.eQG6Sm94RIKNCgInVQ1C2IitoFo2mDi78yAxu9FMIfM"
 		}
 	]
 }
