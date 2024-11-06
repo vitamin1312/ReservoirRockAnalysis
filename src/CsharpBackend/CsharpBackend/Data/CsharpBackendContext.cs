@@ -25,7 +25,6 @@ namespace CsharpBackend.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Ignore<AuthOptions>();
-            modelBuilder.Ignore<Startup>();
         }
     }
 }

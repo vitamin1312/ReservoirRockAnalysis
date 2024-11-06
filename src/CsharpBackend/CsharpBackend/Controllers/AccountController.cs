@@ -4,6 +4,15 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using CsharpBackend.Data;
 using CsharpBackend.Models;
+using System.Security.Cryptography;
+using System.Text;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace CsharpBackend.Controllers
@@ -19,51 +28,30 @@ namespace CsharpBackend.Controllers
             _context = context;
         }
 
-        [HttpPost("/token")]
-        public IActionResult Token(string login, string password)
+        public struct LoginData
         {
-            var identity = GetIdentity(login, password);
-            if (identity == null)
+            public string login { get; set; }
+            public string password { get; set; }
+        }
+        [HttpPost]
+        [Route("login")]
+        public object GetToken([FromBody] LoginData ld)
+        {
+            var user = _context.User.FirstOrDefault(u => u.Login == ld.login && u.Password == ld.password);
+            if (user == null)
             {
-                return BadRequest(new { errorText = "Invalid username or password." });
+                Response.StatusCode = 401;
+                return new { message = "wrong login/password" };
             }
-
-            var now = DateTime.UtcNow;
-            var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
-                    notBefore: now,
-                    claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            var response = new
-            {
-                access_token = encodedJwt,
-                username = identity.Name
-            };
-            return Json(response);
+            return AuthOptions.GenerateToken(user.IsAdmin);
         }
 
-        private ClaimsIdentity GetIdentity(string username, string password)
-        {
-            User person = _context.User.FirstOrDefault(x => x.Login == username && x.Password == password);
-            if (person != null)
-            {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.Login),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, person.Role)
-                };
-                ClaimsIdentity claimsIdentity =
-                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                    ClaimsIdentity.DefaultRoleClaimType);
-                return claimsIdentity;
-            }
 
-            // если пользователя не найдено
-            return null;
+        [HttpGet("users")]
+        public List<User> GetUsers()
+        {
+            return _context.User.ToList();
         }
+        
     }
 }

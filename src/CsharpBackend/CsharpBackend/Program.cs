@@ -2,6 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using CsharpBackend.Data;
 using CsharpBackend.NeuralNetwork;
+using CsharpBackend.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CsharpBackend
 {
@@ -21,7 +24,26 @@ namespace CsharpBackend
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<INetworkManager, NetworkManager>();
 
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.RequireHttpsMetadata = true;
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+
+                            ValidateIssuer = true,
+                            ValidIssuer = AuthOptions.Issuer,
+                            ValidateAudience = true,
+                            ValidAudience = AuthOptions.Audience,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = AuthOptions.SigningKey,
+                            ValidateIssuerSigningKey = true,
+                        };
+                    });
+
             var app = builder.Build();
+
+
 
             // Configure the HTTP request pipeline.
 
@@ -34,11 +56,12 @@ namespace CsharpBackend
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseAuthentication();
 
             app.MapControllers();
 
             app.Run();
         }
+
     }
 }

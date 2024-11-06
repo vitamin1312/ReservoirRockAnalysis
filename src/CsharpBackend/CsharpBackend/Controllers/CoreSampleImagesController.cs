@@ -60,6 +60,7 @@ namespace CsharpBackend
         }
 
         [HttpGet]
+        [Authorize]
         [Route("get")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImage()
         {
