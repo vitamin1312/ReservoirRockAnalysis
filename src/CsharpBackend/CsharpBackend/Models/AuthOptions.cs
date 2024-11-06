@@ -11,7 +11,7 @@ namespace CsharpBackend.Models
     {
         public static string Issuer => "I";
         public static string Audience => "APIclients";
-        public static int Lifetime => 1;
+        public static int Lifetime => 24;
         public static SecurityKey SigningKey => new SymmetricSecurityKey(Encoding.ASCII.GetBytes("superSecretKeyMustBeVeryVeryLoooooong"));
 
         internal static object GenerateToken(bool is_admin = false)

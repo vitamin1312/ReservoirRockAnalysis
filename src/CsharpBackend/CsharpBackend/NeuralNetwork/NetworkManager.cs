@@ -1,4 +1,5 @@
 ﻿using Emgu.CV;
+using System.Drawing;
 
 
 namespace CsharpBackend.NeuralNetwork
@@ -8,11 +9,14 @@ namespace CsharpBackend.NeuralNetwork
         void Predict(string pathToImage, string pathToTarget);
     }
 
-
-
     public class NetworkManager : INetworkManager
     {
-        private NeuralNetwork model = new NeuralNetwork(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\resources\unetppforcsharp.onnx", 128);
+        private NeuralNetwork model;
+
+        public NetworkManager()
+        {
+            model = new NeuralNetwork("asdads", 128);
+        }
 
         public void Predict(string pathToImage, string pathToTarget)
         {

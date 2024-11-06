@@ -15,7 +15,6 @@ namespace CsharpBackend
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddDbContext<CsharpBackendContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("CsharpBackendContext") ?? throw new InvalidOperationException("Connection string 'CsharpBackendContext' not found.")));
-
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -55,8 +54,8 @@ namespace CsharpBackend
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapControllers();
 

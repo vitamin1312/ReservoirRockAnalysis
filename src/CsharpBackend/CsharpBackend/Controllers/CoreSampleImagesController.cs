@@ -60,8 +60,8 @@ namespace CsharpBackend
         }
 
         [HttpGet]
-        [Authorize]
         [Route("get")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImage()
         {
             return await _context.CoreSampleImage.Include(image => image.ImageInfo).ToListAsync();
