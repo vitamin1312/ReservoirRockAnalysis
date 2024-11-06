@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "27d574ec-c6cc-4785-93b8-231fa16a82da",
+		"_postman_id": "845d48d7-a78c-49fe-a274-7c95539d9beb",
 		"name": "CsharpBackend",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "38585963"
@@ -93,7 +93,10 @@
 			"name": "get image by id",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": ""
+				}
 			},
 			"response": []
 		},
@@ -101,7 +104,10 @@
 			"name": "delete image by id",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": ""
+				}
 			},
 			"response": []
 		},
@@ -193,7 +199,10 @@
 			"name": "get field by id",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": ""
+				}
 			},
 			"response": []
 		},
