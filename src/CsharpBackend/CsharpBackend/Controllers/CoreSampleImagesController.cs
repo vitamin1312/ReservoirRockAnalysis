@@ -7,6 +7,8 @@ using Emgu.CV.Structure;
 using Emgu.CV;
 using System.CodeDom.Compiler;
 using Microsoft.AspNetCore.Authorization;
+using CsharpBackend.Repository;
+using CsharpBackend.Models.DTO;
 
 namespace CsharpBackend
 {
@@ -14,21 +16,20 @@ namespace CsharpBackend
     [ApiController]
     public class CoreSampleImagesController : ControllerBase
     {
-        private readonly CsharpBackendContext _context;
+        private readonly IImageRepository repository;
         private int MaxFileLength = 15 * 1024 * 1024;
         private INetworkManager _networkManager;
 
-        public CoreSampleImagesController(CsharpBackendContext context, INetworkManager networkManager)
+        public CoreSampleImagesController(IImageRepository context, INetworkManager networkManager)
         {
-            _context = context;
-            _context.Database.EnsureCreated();
+            repository = context;
             _networkManager = networkManager;
         }
 
         [HttpPost]
         [Route("upload")]
         async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
-            [FromForm] ImageInfo imageInfo)
+            [FromForm] ImageInfoDTO imageInfoDTO)
         {
 
             if (file.Length > MaxFileLength)
@@ -49,12 +50,14 @@ namespace CsharpBackend
                 await file.CopyToAsync(stream);
             }
 
+            var imageInfo = new ImageInfo(imageInfoDTO);
+
             checkFieldInInfo(imageInfo);
 
             coreSampleImage.ImageInfo = imageInfo;
 
-            _context.CoreSampleImage.Add(coreSampleImage);
-            await _context.SaveChangesAsync();
+            await repository.CreateImage(coreSampleImage);
+            await repository.Save();
             return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
             
         }
@@ -64,13 +67,13 @@ namespace CsharpBackend
         [Authorize]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImage()
         {
-            return await _context.CoreSampleImage.Include(image => image.ImageInfo).ToListAsync();
+            return await repository.GetImagesList();
         }
 
         [HttpGet("getitem/{id}")]
         public async Task<ActionResult<CoreSampleImage>> GetCoreSampleImage(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
             {
@@ -83,35 +86,26 @@ namespace CsharpBackend
         [HttpGet("getfromfield/{fieldId}")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageFromField(int fieldId)
         {
-            return await _context.CoreSampleImage
-                                                .Include(image => image.ImageInfo)
-                                                .Where(image => image.ImageInfo.FieldId == fieldId)
-                                                .ToListAsync();
+            return await repository.GetCoreSampleImageFromField(fieldId);
         }
 
         [HttpGet("getwithmask")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageWithMask()
         {
-            return await _context.CoreSampleImage
-                                                .Include(image => image.ImageInfo)
-                                                .Where(image => image.PathToMask != null)
-                                                .ToListAsync();
+            return await repository.GetCoreSampleImageWithMask();
         }
 
         [HttpGet("getwithoutmask")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageWithoutMask()
         {
-            return await _context.CoreSampleImage
-                                                .Include(image => image.ImageInfo)
-                                                .Where(image => image.PathToMask == null)
-                                                .ToListAsync();
+            return await repository.GetCoreSampleImageWithoutMask();
         }
 
 
         [HttpGet("getimagefile/{id}")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageFile(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
                 return NotFound();
@@ -125,7 +119,7 @@ namespace CsharpBackend
         [HttpGet("getmaskfile/{id}")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetMaskFile(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null || coreSampleImage.PathToMask == null)
                 return NotFound();
@@ -137,7 +131,7 @@ namespace CsharpBackend
         [HttpGet("getmaskimagefile/{id}")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetMaskImageFile(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
                 return NotFound();
@@ -156,7 +150,7 @@ namespace CsharpBackend
         [HttpGet("getimagewithmaskfile/{id}")]
         public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetImageWithMaskFile(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
                 return NotFound();
@@ -175,7 +169,7 @@ namespace CsharpBackend
         [HttpGet("predict/{id}")]
         public async Task<ActionResult<CoreSampleImage>> PredictMaskForItem(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage.FindAsync(id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
             {
@@ -187,11 +181,11 @@ namespace CsharpBackend
             _networkManager.Predict(coreSampleImage.PathToImage, pathToMask);
             coreSampleImage.PathToMask = pathToMask;
 
-            _context.Entry(coreSampleImage).State = EntityState.Modified;
+            repository.UpdateImage(coreSampleImage);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await repository.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -208,20 +202,23 @@ namespace CsharpBackend
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("putitem/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutImageInfo(int id, [FromForm] ImageInfo imageInfo)
+        public async Task<IActionResult> PutImageInfo(int id, [FromForm] ImageInfoDTO imageInfoDTO)
         {
-            if (id != imageInfo.Id)
+/*
+            if (id != imageInfoDTO.Id)
             {
                 return BadRequest();
             }
+*/
+            var imageInfo = new ImageInfo(imageInfoDTO);
 
             checkFieldInInfo(imageInfo);
 
-            _context.Entry(imageInfo).State = EntityState.Modified;
+            repository.UpdateInfo(imageInfo);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await repository.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -244,36 +241,30 @@ namespace CsharpBackend
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
         {
-            var coreSampleImage = await _context.CoreSampleImage
-                .Include(ci => ci.ImageInfo)
-                .FirstOrDefaultAsync(ci => ci.Id == id);
+            var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
             {
                 return NotFound();
             }
 
-            coreSampleImage.DeleteItemFiles();
-            var imageInfo = coreSampleImage.ImageInfo;
-
-            _context.ImageInfo.Remove(imageInfo);
-            _context.CoreSampleImage.Remove(coreSampleImage);
-            await _context.SaveChangesAsync();
+            await repository.DeleteImage(id);
+            await repository.Save();
 
             return NoContent();
         }
 
         private bool CoreSampleImageExists(int id)
         {
-            return _context.CoreSampleImage.Any(e => e.Id == id);
+            return repository.CoreSampleImageExists(id);
         }
 
         private bool FieldExists(int id)
         {
-            return _context.Field.Any(e => e.Id == id);
+            return repository.FieldExists(id);
         }
 
-        private void checkFieldInInfo (ImageInfo imageInfo)
+        private void checkFieldInInfo(ImageInfo imageInfo)
         {
             int fieldId = Convert.ToInt32(imageInfo.FieldId);
             if (imageInfo.FieldId != null && !FieldExists(fieldId))

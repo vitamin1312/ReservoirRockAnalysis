@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using CsharpBackend.Utils;
 
 namespace CsharpBackend.Models
 {
@@ -15,10 +16,7 @@ namespace CsharpBackend.Models
         {
             get
             {
-                var sb = new StringBuilder();
-                foreach (var b in MD5.Create().ComputeHash(password))
-                    sb.Append(b.ToString("x2"));
-                return sb.ToString();
+                return Hasher.HashPassword(password);
             }
             set { password = Encoding.UTF8.GetBytes(value); }
         }

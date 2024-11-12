@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using CsharpBackend.Models;
-using Emgu.CV.Features2D;
+using CsharpBackend.Models.DTO;
 
 namespace CsharpBackend.Data
 {
@@ -25,6 +21,7 @@ namespace CsharpBackend.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Ignore<AuthOptions>();
+            modelBuilder.Ignore<ImageInfoDTO>();
         }
     }
 }

@@ -1,19 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using CsharpBackend.Data;
 using CsharpBackend.Models;
-using System.Security.Cryptography;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using CsharpBackend.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace CsharpBackend.Controllers
@@ -22,11 +10,11 @@ namespace CsharpBackend.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly CsharpBackendContext _context;
+        private readonly IImageRepository repository;
 
-        public AccountController(CsharpBackendContext context)
+        public AccountController(IImageRepository context)
         {
-            _context = context;
+            repository = context;
         }
 
         public struct LoginData
@@ -34,11 +22,12 @@ namespace CsharpBackend.Controllers
             public string login { get; set; }
             public string password { get; set; }
         }
+
         [HttpPost]
         [Route("login")]
         public async Task<ActionResult<object>> GetToken([FromBody] LoginData ld)
         {
-            var user = await _context.User.FirstOrDefaultAsync(u => u.Login == ld.login && u.Password == ld.password);
+            var user = await repository.GetUser(ld);
             if (user == null)
             {
                 Response.StatusCode = 401;
@@ -49,9 +38,10 @@ namespace CsharpBackend.Controllers
 
 
         [HttpGet("users")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.User.ToListAsync();
+            return await repository.GetUsers();
         }
         
     }

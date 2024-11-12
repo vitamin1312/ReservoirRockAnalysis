@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CsharpBackend.Data;
 using CsharpBackend.Models;
+using CsharpBackend.Repository;
 
 namespace CsharpBackend.Controllers
 {
@@ -10,11 +11,11 @@ namespace CsharpBackend.Controllers
     [ApiController]
     public class FieldsController : ControllerBase
     {
-        private readonly CsharpBackendContext _context;
+        private readonly IImageRepository repository;
 
-        public FieldsController(CsharpBackendContext context)
+        public FieldsController(IImageRepository context)
         {
-            _context = context;
+            repository = context;
         }
 
         // POST: api/Fields
@@ -23,8 +24,8 @@ namespace CsharpBackend.Controllers
         [Route("create")]
         public async Task<ActionResult<Field>> PostField([FromForm] Field @field)
         {
-            _context.Field.Add(@field);
-            await _context.SaveChangesAsync();
+            await repository.CreateField(@field);
+            await repository.Save();
 
             return CreatedAtAction("GetField", new { id = @field.Id }, @field);
         }
@@ -34,14 +35,14 @@ namespace CsharpBackend.Controllers
         [Route("get")]
         public async Task<ActionResult<IEnumerable<Field>>> GetField()
         {
-            return await _context.Field.ToListAsync();
+            return await repository.GetFieldsList();
         }
 
         // GET: api/Fields/5
         [HttpGet("getitem/{id}")]
         public async Task<ActionResult<Field>> GetField(int id)
         {
-            var @field = await _context.Field.FindAsync(id);
+            var @field = await repository.GetField(id);
 
             if (@field == null)
             {
@@ -61,11 +62,11 @@ namespace CsharpBackend.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(@field).State = EntityState.Modified;
+            repository.UpdateField(@field);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await repository.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -86,21 +87,21 @@ namespace CsharpBackend.Controllers
         [HttpDelete("deleteitem/{id}")]
         public async Task<IActionResult> DeleteField(int id)
         {
-            var @field = await _context.Field.FindAsync(id);
+            var @field = await repository.GetField(id);
             if (@field == null)
             {
                 return NotFound();
             }
 
-            _context.Field.Remove(@field);
-            await _context.SaveChangesAsync();
+            await repository.DeleteField(id);
+            await repository.Save();
 
             return NoContent();
         }
 
         private bool FieldExists(int id)
         {
-            return _context.Field.Any(e => e.Id == id);
+            return repository.FieldExists(id);
         }
     }
 }

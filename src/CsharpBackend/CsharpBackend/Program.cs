@@ -5,6 +5,7 @@ using CsharpBackend.NeuralNetwork;
 using CsharpBackend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using CsharpBackend.Repository;
 
 namespace CsharpBackend
 {
@@ -22,6 +23,7 @@ namespace CsharpBackend
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<INetworkManager, NetworkManager>();
+            builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
