@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace CsharpBackend.Controllers
@@ -35,9 +36,9 @@ namespace CsharpBackend.Controllers
         }
         [HttpPost]
         [Route("login")]
-        public object GetToken([FromBody] LoginData ld)
+        public async Task<ActionResult<object>> GetToken([FromBody] LoginData ld)
         {
-            var user = _context.User.FirstOrDefault(u => u.Login == ld.login && u.Password == ld.password);
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Login == ld.login && u.Password == ld.password);
             if (user == null)
             {
                 Response.StatusCode = 401;
@@ -48,9 +49,9 @@ namespace CsharpBackend.Controllers
 
 
         [HttpGet("users")]
-        public List<User> GetUsers()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return _context.User.ToList();
+            return await _context.User.ToListAsync();
         }
         
     }

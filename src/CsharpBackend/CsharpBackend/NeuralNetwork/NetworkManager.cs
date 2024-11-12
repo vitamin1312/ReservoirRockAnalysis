@@ -4,18 +4,13 @@ using System.Drawing;
 
 namespace CsharpBackend.NeuralNetwork
 {
-    public interface INetworkManager
-    {
-        void Predict(string pathToImage, string pathToTarget);
-    }
-
     public class NetworkManager : INetworkManager
     {
         private NeuralNetwork model;
 
         public NetworkManager()
         {
-            model = new NeuralNetwork("asdads", 128);
+            model = new NeuralNetwork(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\resources\unetppforcsharp.onnx", 2048);
         }
 
         public void Predict(string pathToImage, string pathToTarget)

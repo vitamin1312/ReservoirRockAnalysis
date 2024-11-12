@@ -22,14 +22,14 @@ namespace CsharpBackend.Models
 
         public CoreSampleImage ()
         {
-            PathToImage = Path.Combine(@"C:\Users\vikto\Documents\IT\AI\ReservoirRockAnalysis\wwwroot\ImageFiles",
+            PathToImage = Path.Combine(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles",
                 $"{Guid.NewGuid()}.jpg");
         }
 
         public string GenerateMaskPath ()
         {
             if (PathToMask == null)
-                return Path.Combine(@"C:\Users\vikto\Documents\IT\AI\ReservoirRockAnalysis\wwwroot\ImageFiles",
+                return Path.Combine(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles",
                     $"{Guid.NewGuid()}.png");
             else
                 return PathToMask;
