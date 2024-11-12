@@ -16,8 +16,8 @@ namespace CsharpBackend.NeuralNetwork
         public async void Predict(string pathToImage, string pathToTarget)
         {
             var image = new Mat(pathToImage);
-            var inputImage = NeuralNetwork.ImagePreprocessing(image);
-            var mask = NeuralNetwork.ProcessImageWithNN(inputImage);
+            var inputImage = await NeuralNetwork.ImagePreprocessing(image);
+            var mask = await NeuralNetwork.ProcessImageWithNN(inputImage);
             var maskResized = DataConverter.ResizeImage(mask, image.Cols, image.Rows, 3);
             maskResized.Save(pathToTarget);
         }

@@ -35,7 +35,8 @@ namespace CsharpBackend.NeuralNetwork
 
             is_ready = true;
         }
-        public static Mat ProcessImageWithNN(Mat CoreSampleImage)
+
+        public async static Task<Mat> ProcessImageWithNN(Mat CoreSampleImage)
         {
             var input = new DenseTensor<float>(new[] { 1, 3, ImageSize, ImageSize });
 
@@ -45,24 +46,32 @@ namespace CsharpBackend.NeuralNetwork
             
             GC.Collect();
             var onnxInputArray = new[] { onnxInput };
-            using var results = _session.Run(onnxInputArray);
-            if (results.FirstOrDefault()?.Value is not Tensor<float> output)
-                throw new ApplicationException("Unable to process pictures");
-            return DataConverter.TensorToMat(output, ImageSize, ImageSize, NumClasses);
+            var result = await Task.Run(() =>
+            {
+                using var results = _session.Run(onnxInputArray);
+                if (results.FirstOrDefault()?.Value is not Tensor<float> output)
+                    throw new ApplicationException("Unable to process pictures");
+                return DataConverter.TensorToMat(output, ImageSize, ImageSize, NumClasses);
+            });
+            return result;
         }
 
-        public static Mat ImagePreprocessing(Mat CoreSampleImage)
+        public async static Task<Mat> ImagePreprocessing(Mat CoreSampleImage)
         {
-            return DataConverter.NormalizeImage(
-                DataConverter.ResizeImage(
-                    DataConverter.CvtBgr2Rgb(CoreSampleImage),
-                    ImageSize,
-                    ImageSize,
-                    NumChannels
-                    ),
-                ImageSize,
-                ImageSize
-                );
+            var result = await Task.Run(() =>
+            {
+                return DataConverter.NormalizeImage(
+                   DataConverter.ResizeImage(
+                       DataConverter.CvtBgr2Rgb(CoreSampleImage),
+                       ImageSize,
+                       ImageSize,
+                       NumChannels
+                       ),
+                   ImageSize,
+                   ImageSize
+                   );
+            });
+            return result;
         }
     }
 }
