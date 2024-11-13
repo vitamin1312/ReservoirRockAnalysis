@@ -129,8 +129,7 @@ namespace CsharpBackend.Repository
 
         public async Task<User?> GetUser(LoginData ld)
         {
-            var hashedPassword = Hasher.HashPassword(ld.password); 
-            return await db.User.FirstOrDefaultAsync(u => u.Login == ld.login && u.Password == hashedPassword);
+            return await db.User.FirstOrDefaultAsync(u => u.Login == ld.login && u.Password == ld.password);
         }
 
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()

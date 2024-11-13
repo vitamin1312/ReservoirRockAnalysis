@@ -2,13 +2,14 @@
 using Emgu.CV;
 using CsharpBackend.NeuralNetwork;
 using Emgu.CV.CvEnum;
+using CsharpBackend.Utils;
 
 namespace TestBackend
 {
     public class UnitTest1
     {
         [Fact]
-        public void Test1()
+        public async void Test1()
         {
             int size = (int)(1024 * 3.5);
             var neuralNetwork = new NeuralNetwork(
@@ -24,9 +25,9 @@ namespace TestBackend
 
             //image = NeuralNetwork.ResizeImage(image, 400, 200, 3);
 
-            var inputImage = NeuralNetwork.ImagePreprocessing(image);
-            var mask = NeuralNetwork.ProcessImageWithNN(inputImage);
-            var maskResized = NeuralNetwork.ResizeImage(mask, image.Cols, image.Rows, 3);
+            var inputImage = await NeuralNetwork.ImagePreprocessing(image);
+            var mask = await NeuralNetwork.ProcessImageWithNN(inputImage);
+            var maskResized = DataConverter.ResizeImage(mask, image.Cols, image.Rows, 3);
 
             var pathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\test\image.jpg";
             var pathToMask = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\test\mask.png";
