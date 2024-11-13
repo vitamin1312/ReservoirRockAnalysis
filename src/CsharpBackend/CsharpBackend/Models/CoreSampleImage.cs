@@ -17,19 +17,37 @@ namespace CsharpBackend.Models
 
         public ImageInfo ImageInfo { get; set; }
 
+        private string? PathToMaskImage;
+        private string? PathToImageWithMask;
+
 
         // Methods
 
-        public CoreSampleImage ()
+        public CoreSampleImage() { }
+
+        public CoreSampleImage(string pathToRoot)
         {
-            PathToImage = Path.Combine(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles",
-                $"{Guid.NewGuid()}.jpg");
+            PathToImage = Path.Combine(
+                pathToRoot,
+                @"\ImageFiles",
+                $"{Guid.NewGuid()}.jpg"
+                );
         }
 
-        public string GenerateMaskPath ()
+        public void SetTmpPathToMaskImage(string pathToMaskImage)
+        {
+            PathToMaskImage = pathToMaskImage;
+        }
+        public void SetTmpPathToImageWithMask(string pathToImageWithMask)
+        {
+            PathToImageWithMask = pathToImageWithMask;
+        }
+
+        public string GenerateMaskPath(string pathToRoot)
         {
             if (PathToMask == null)
-                return Path.Combine(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles",
+                return Path.Combine(pathToRoot,
+                    @"\ImageFiles",
                     $"{Guid.NewGuid()}.png");
             else
                 return PathToMask;
@@ -77,7 +95,12 @@ namespace CsharpBackend.Models
 
         public Mat? GetMaskImageMat()
         {
-            Mat Mask = GetMaskMat();
+            if (PathToMaskImage != null && File.Exists(PathToMaskImage))
+            { 
+                return new Mat(PathToMaskImage, ImreadModes.Color);
+            }
+
+            Mat? Mask = GetMaskMat();
 
             if (Mask is null || Mask.IsEmpty)
             {
@@ -89,9 +112,13 @@ namespace CsharpBackend.Models
 
         public Mat? GetImageWithMaskMat()
         {
-            Mat Image = GetImageMat();
-            Mat Mask = GetMaskMat();
-            Mat MaskImage = GetMaskImageMat();
+            if (PathToImageWithMask != null && File.Exists(PathToImageWithMask))
+            {
+                return new Mat(PathToImageWithMask, ImreadModes.Color);
+            }
+            Mat? Image = GetImageMat();
+            Mat? Mask = GetMaskMat();
+            Mat? MaskImage = GetMaskImageMat();
 
             if (Image is null || Image.IsEmpty
                 || MaskImage is null || MaskImage.IsEmpty

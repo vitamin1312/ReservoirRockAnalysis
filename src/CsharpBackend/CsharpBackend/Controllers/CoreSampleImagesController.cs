@@ -9,6 +9,8 @@ using System.CodeDom.Compiler;
 using Microsoft.AspNetCore.Authorization;
 using CsharpBackend.Repository;
 using CsharpBackend.Models.DTO;
+using Microsoft.Extensions.Options;
+using CsharpBackend.Utils;
 
 namespace CsharpBackend
 {
@@ -19,11 +21,13 @@ namespace CsharpBackend
         private readonly IImageRepository repository;
         private int MaxFileLength = 15 * 1024 * 1024;
         private INetworkManager _networkManager;
+        private AppConfig _config;
 
-        public CoreSampleImagesController(IImageRepository context, INetworkManager networkManager)
+        public CoreSampleImagesController(IImageRepository context, INetworkManager networkManager, IOptions<AppConfig> config)
         {
             repository = context;
             _networkManager = networkManager;
+            _config = config.Value;
         }
 
         [HttpPost]
@@ -43,7 +47,7 @@ namespace CsharpBackend
             if (file == null)
                 return NoContent();
 
-            var coreSampleImage = new CoreSampleImage();
+            var coreSampleImage = new CoreSampleImage(_config.PathToWWWROOT);
 
             using (var stream = new FileStream(coreSampleImage.PathToImage, FileMode.Create))
             {
@@ -141,9 +145,8 @@ namespace CsharpBackend
             if (maskImage == null)
                 return NotFound();
 
-            var tempFiles = new TempFileCollection();
-            string file = tempFiles.AddExtension("jpg");
-            maskImage.Save(file);
+            var file = TmpFiles.SaveMat(maskImage);
+            coreSampleImage.SetTmpPathToMaskImage(file);
             return PhysicalFile(file, "image/jpeg");
         }
 
@@ -155,14 +158,13 @@ namespace CsharpBackend
             if (coreSampleImage == null)
                 return NotFound();
 
-            var maskImage = coreSampleImage.GetImageWithMaskMat();
+            var imageWithMask = coreSampleImage.GetImageWithMaskMat();
 
-            if (maskImage == null)
+            if (imageWithMask == null)
                 return NotFound();
 
-            var tempFiles = new TempFileCollection();
-            string file = tempFiles.AddExtension("jpg");
-            maskImage.Save(file);
+            var file = TmpFiles.SaveMat(imageWithMask);
+            coreSampleImage.SetTmpPathToImageWithMask(file);
             return PhysicalFile(file, "image/jpeg");
         }
 
@@ -176,7 +178,7 @@ namespace CsharpBackend
                 return NotFound();
             }
             
-            var pathToMask = coreSampleImage.GenerateMaskPath();
+            var pathToMask = coreSampleImage.GenerateMaskPath(_config.PathToWWWROOT);
 
             _networkManager.Predict(coreSampleImage.PathToImage, pathToMask);
             coreSampleImage.PathToMask = pathToMask;

@@ -1,5 +1,7 @@
 ﻿using CsharpBackend.Utils;
 using Emgu.CV;
+using Emgu.CV.Ocl;
+using Microsoft.Extensions.Options;
 
 
 namespace CsharpBackend.NeuralNetwork
@@ -8,9 +10,10 @@ namespace CsharpBackend.NeuralNetwork
     {
         private NeuralNetwork model;
 
-        public NetworkManager()
+        public NetworkManager(IOptions<AppConfig> appConfig)
         {
-            model = new NeuralNetwork(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\resources\unetppforcsharp.onnx", 2048);
+            var config = appConfig.Value;
+            model = new NeuralNetwork(config.PathToModel, config.ImageSize);
         }
 
         public async void Predict(string pathToImage, string pathToTarget)

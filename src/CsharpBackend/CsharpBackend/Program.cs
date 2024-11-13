@@ -6,6 +6,7 @@ using CsharpBackend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using CsharpBackend.Repository;
+using Microsoft.Identity.Client;
 
 namespace CsharpBackend
 {
@@ -24,6 +25,7 @@ namespace CsharpBackend
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<INetworkManager, NetworkManager>();
             builder.Services.AddScoped<IImageRepository, ImageRepository>();
+            builder.Services.Configure<AppConfig>(builder.Configuration.GetSection("AppConfig"));
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
