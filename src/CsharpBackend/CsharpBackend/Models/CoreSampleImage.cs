@@ -29,7 +29,7 @@ namespace CsharpBackend.Models
         {
             PathToImage = Path.Combine(
                 pathToRoot,
-                @"\ImageFiles",
+                @"ImageFiles",
                 $"{Guid.NewGuid()}.jpg"
                 );
         }
@@ -47,7 +47,7 @@ namespace CsharpBackend.Models
         {
             if (PathToMask == null)
                 return Path.Combine(pathToRoot,
-                    @"\ImageFiles",
+                    @"ImageFiles",
                     $"{Guid.NewGuid()}.png");
             else
                 return PathToMask;
