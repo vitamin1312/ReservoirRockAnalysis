@@ -6,10 +6,15 @@ __pycache__/
 # C extensions
 *.so
 
+# archives
+*.zip
+*.rar
+
 # images
 *.jpg
 *.jpeg
 *.png
+*.psd
 
 # neural network
 *.pkl
