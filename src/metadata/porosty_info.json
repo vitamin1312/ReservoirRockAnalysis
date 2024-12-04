@@ -1,0 +1,38 @@
+[
+    {
+        "Year": "2024",
+        "classes": [
+            {
+                "name": "Порода",
+                "color": "Black",
+                "index": 0
+            },
+            {
+                "name": "Внеформенная пористость",
+                "color": "Green",
+                "index": 1
+            },
+            {
+                "name": "Внутриформенная пористость",
+                "color": "Violet",
+                "index": 2
+            },
+            {
+                "name": "Микропористость",
+                "color": "Yellow",
+                "index": 3
+            },
+            {
+                "name": "Трещины",
+                "color": "Red",
+                "index": 4
+            },
+            {
+                "name": "Каверны",
+                "color": "Turquoise",
+                "index": 5
+            }
+        ]
+
+    }
+]
