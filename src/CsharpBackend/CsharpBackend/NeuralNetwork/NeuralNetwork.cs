@@ -27,9 +27,9 @@ namespace CsharpBackend.NeuralNetwork
                 return;
             }
 
-            var so = Microsoft.ML.OnnxRuntime.SessionOptions.MakeSessionOptionWithCudaProvider(0);
-            so.LogSeverityLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_VERBOSE;  // verbose to check node placements
-            _session = new InferenceSession(PathToModel, so);
+            //var so = Microsoft.ML.OnnxRuntime.SessionOptions.MakeSessionOptionWithCudaProvider(0);
+            //so.LogSeverityLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_VERBOSE;  // verbose to check node placements
+            _session = new InferenceSession(PathToModel);
 
             ImageSize = imageSize;
 

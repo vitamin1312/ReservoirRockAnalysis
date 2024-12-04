@@ -146,7 +146,6 @@ namespace CsharpBackend
                 return NotFound();
 
             var file = TmpFiles.SaveMat(maskImage);
-            coreSampleImage.SetTmpPathToMaskImage(file);
             return PhysicalFile(file, "image/jpeg");
         }
 
@@ -164,7 +163,6 @@ namespace CsharpBackend
                 return NotFound();
 
             var file = TmpFiles.SaveMat(imageWithMask);
-            coreSampleImage.SetTmpPathToImageWithMask(file);
             return PhysicalFile(file, "image/jpeg");
         }
 

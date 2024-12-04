@@ -17,10 +17,6 @@ namespace CsharpBackend.Models
 
         public ImageInfo ImageInfo { get; set; }
 
-        private string? PathToMaskImage;
-        private string? PathToImageWithMask;
-
-
         // Methods
 
         public CoreSampleImage() { }
@@ -29,25 +25,16 @@ namespace CsharpBackend.Models
         {
             PathToImage = Path.Combine(
                 pathToRoot,
-                @"\ImageFiles",
+                @"ImageFiles",
                 $"{Guid.NewGuid()}.jpg"
                 );
-        }
-
-        public void SetTmpPathToMaskImage(string pathToMaskImage)
-        {
-            PathToMaskImage = pathToMaskImage;
-        }
-        public void SetTmpPathToImageWithMask(string pathToImageWithMask)
-        {
-            PathToImageWithMask = pathToImageWithMask;
         }
 
         public string GenerateMaskPath(string pathToRoot)
         {
             if (PathToMask == null)
                 return Path.Combine(pathToRoot,
-                    @"\ImageFiles",
+                    @"ImageFiles",
                     $"{Guid.NewGuid()}.png");
             else
                 return PathToMask;
@@ -95,11 +82,6 @@ namespace CsharpBackend.Models
 
         public Mat? GetMaskImageMat()
         {
-            if (PathToMaskImage != null && File.Exists(PathToMaskImage))
-            { 
-                return new Mat(PathToMaskImage, ImreadModes.Color);
-            }
-
             Mat? Mask = GetMaskMat();
 
             if (Mask is null || Mask.IsEmpty)
@@ -112,10 +94,6 @@ namespace CsharpBackend.Models
 
         public Mat? GetImageWithMaskMat()
         {
-            if (PathToImageWithMask != null && File.Exists(PathToImageWithMask))
-            {
-                return new Mat(PathToImageWithMask, ImreadModes.Color);
-            }
             Mat? Image = GetImageMat();
             Mat? Mask = GetMaskMat();
             Mat? MaskImage = GetMaskImageMat();
