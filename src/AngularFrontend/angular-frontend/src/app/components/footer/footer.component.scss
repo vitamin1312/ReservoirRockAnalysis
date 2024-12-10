@@ -1,0 +1,15 @@
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .spacer {
+    flex: 1 1 auto;
+  }
+  
+  mat-toolbar.footer {
+    justify-content: space-between;
+    padding: 0 16px;
+  }
