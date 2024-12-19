@@ -1,7 +1,17 @@
+import { BrowserRouter as Router } from "react-router-dom";
+
+import Header from "./components/Header/Header"
+import Footer from "./components/Footer/Footer";
+
 export default function App() {
   return (
-    <h1 className="text-1xl font-bold">
-      Hello world!
-    </h1>
+    <>
+    <Router>
+      <div className="w-full min-h-screen bg-white">
+        <Header />
+        <Footer />
+      </div>
+    </Router>
+    </>
   )
 }
