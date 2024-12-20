@@ -11,7 +11,7 @@ namespace CsharpBackend.Models
         public string? Description { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime? UploadDate = DateTime.Now;
+        public DateTime UploadDate { get; set; }
 
         [DataType(DataType.Date)]
         public DateOnly? CreationDate { get; set; }
@@ -19,12 +19,16 @@ namespace CsharpBackend.Models
         public int? FieldId { get; set; }
         public Field? Field { get; set; }
 
-        public ImageInfo() { }
+        public ImageInfo() {
+            UploadDate = DateTime.Now;
+        }
+
         public ImageInfo(ImageInfoDTO dto)
         {
             Name = (dto.Name != null) ? dto.Name : $"Image{Id}";
             Description = dto.Description;
             CreationDate = dto.CreationDate;
+            UploadDate = DateTime.Now;
             FieldId = dto.FieldId;
         }
     }

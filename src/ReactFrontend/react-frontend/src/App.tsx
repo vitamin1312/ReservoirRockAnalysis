@@ -4,6 +4,7 @@ import axios from "axios";
 
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
+import ImageCard from "./components/ImageCard/ImageCard";
 
 export default function App() {
   const [appState, setAppState] = useState([]);
@@ -30,8 +31,7 @@ export default function App() {
             <ul>
               {appState.map((item, index) => (
                 <li key={index}>
-                  <strong>json:</strong> {item.pathToImage} <br />
-                  <hr />
+                  <ImageCard data={item} />
                 </li>
               ))}
             </ul>
