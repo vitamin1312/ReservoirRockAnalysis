@@ -4,9 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using CsharpBackend.Data;
 using CsharpBackend.Models;
 using CsharpBackend.Repository;
+using Microsoft.AspNetCore.Cors;
 
 namespace CsharpBackend.Controllers
 {
+    [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class FieldsController : ControllerBase

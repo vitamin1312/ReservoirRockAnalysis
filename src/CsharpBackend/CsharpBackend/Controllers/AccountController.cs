@@ -2,10 +2,12 @@
 using CsharpBackend.Models;
 using CsharpBackend.Repository;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 
 namespace CsharpBackend.Controllers
 {
+    [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase

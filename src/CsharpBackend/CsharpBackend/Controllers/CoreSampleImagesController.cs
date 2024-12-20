@@ -11,9 +11,11 @@ using CsharpBackend.Repository;
 using CsharpBackend.Models.DTO;
 using Microsoft.Extensions.Options;
 using CsharpBackend.Utils;
+using Microsoft.AspNetCore.Cors;
 
 namespace CsharpBackend
 {
+    [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class CoreSampleImagesController : ControllerBase
@@ -74,6 +76,7 @@ namespace CsharpBackend
             return await repository.GetImagesList();
         }
 
+        
         [HttpGet("getitem/{id}")]
         public async Task<ActionResult<CoreSampleImage>> GetCoreSampleImage(int id)
         {

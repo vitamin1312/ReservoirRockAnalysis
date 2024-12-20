@@ -14,18 +14,36 @@ namespace CsharpBackend
     {
         public static void Main(string[] args)
         {
+            //var myPolicy = "myPolicy";
+
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddCors();
+
             builder.Services.AddDbContext<CsharpBackendContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("CsharpBackendContext") ?? throw new InvalidOperationException("Connection string 'CsharpBackendContext' not found.")));
-            // Add services to the container.
+
+            /*            builder.Services.AddCors(options =>
+                        {
+                            options.AddPolicy(name: myPolicy,
+                                policy =>
+                                {
+                                    policy.AllowAnyHeader()
+                                          .AllowAnyMethod()
+                                            .AllowAnyOrigin();
+                                        //.SetIsOriginAllowedToAllowWildcardSubdomains();
+                                });
+                        });*/
+
+
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<INetworkManager, NetworkManager>();
             builder.Services.AddScoped<IImageRepository, ImageRepository>();
             builder.Services.Configure<AppConfig>(builder.Configuration.GetSection("AppConfig"));
+
+
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
@@ -44,9 +62,15 @@ namespace CsharpBackend
                         };
                     });
 
+
             var app = builder.Build();
-
-
+            //app.UseHttpsRedirection();
+            app.UseCors(
+                    options => options
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                );
 
             // Configure the HTTP request pipeline.
 
@@ -56,8 +80,8 @@ namespace CsharpBackend
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
+            
+          
             app.UseAuthentication();
             app.UseAuthorization();
 
