@@ -67,7 +67,7 @@ namespace CsharpBackend
             //app.UseHttpsRedirection();
             app.UseCors(
                     options => options
-                    .AllowAnyOrigin()
+                    .WithOrigins("http://localhost:5173")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                 );

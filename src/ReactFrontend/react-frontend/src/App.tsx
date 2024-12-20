@@ -1,40 +1,35 @@
 import { BrowserRouter as Router } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 
 export default function App() {
-  const [appState, setAppState] = useState([]); // Начальное состояние как пустой массив
+  const [appState, setAppState] = useState([]);
 
   useEffect(() => {
     const apiUrl = "/api/CoreSampleImages/getfromfield/1";
     axios
-      .get(apiUrl, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Access-Control-Allow-Origin': '*' // Could work and fix the previous problem, but not in all APIs
-        }
-        })
+      .get(apiUrl)
       .then((resp) => {
-        setAppState(resp.data); // Устанавливаем данные в состояние
+        setAppState(resp.data);
       })
       .catch((error) => {
-        console.error("Error fetching data:", error); // Логируем ошибку
+        console.error("Error fetching data:", error);
       });
   }, []);
 
   return (
     <>
+    <div className="flex flex-col min-h-screen">
       <Router>
         <Header />
-        <div className="w-full min-h-screen bg-white p-4">
+        <div className="w-full flex-grow bg-white p-4">
           {appState.length > 0 ? (
             <ul>
               {appState.map((item, index) => (
                 <li key={index}>
-                  {/* Настройте вывод в зависимости от структуры вашего объекта */}
                   <strong>json:</strong> {item.pathToImage} <br />
                   <hr />
                 </li>
@@ -46,6 +41,7 @@ export default function App() {
         </div>
         <Footer />
       </Router>
+      </div>
     </>
   );
 }

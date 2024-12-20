@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using System.Text.Json.Serialization;
 
 
 namespace CsharpBackend.Models
@@ -9,8 +10,10 @@ namespace CsharpBackend.Models
     {
         public int Id { get; set; }
 
+        [JsonIgnore]
         public string PathToImage { get; set; }
 
+        [JsonIgnore]
         public string? PathToMask { get; set; }
 
         public int ImageInfoId { get; set; }

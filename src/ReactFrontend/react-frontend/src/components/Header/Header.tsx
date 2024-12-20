@@ -23,12 +23,12 @@ const Header: React.FC = () => {
 
     return (
         <>
-        <nav className='w-full h-auto bg-blue-400 lg:px-24 md:px-16 sm:ps-12 py-2
+        <nav className='w-full h-auto bg-blue-400 lg:px-14 md:px-14 sm:ps-12 py-2
         shadow-md'>
             <div className="justify-between mx-auto lg:w-full md:items-center md:flex">
                 {/* logo & buttons */}
                 <div>
-                    <div className="flex items-center justify-between py-3 md:py-5 md:block">
+                    <div className="flex items-center justify-between py-3 md:py-3 md:block">
                         {/* logo section */}
                         <Link to="/" className='text-3xl text-gray-900 font-semibold tracking-[0.1rem]'>
                           Темплея
@@ -58,7 +58,7 @@ const Header: React.FC = () => {
                                     </Link>
                                 </li>
                             ))}
-                            <button className="bg-red-300 text-[1.1rem] font-normal text-gray-900
+                            <button className="bg-green-300 text-[1.1rem] font-normal text-gray-900
                             px-5 py-1 rounded lg:ml-10 md:ml-6 sm:ml-3 ml-3">
                                 Log In
                             </button>

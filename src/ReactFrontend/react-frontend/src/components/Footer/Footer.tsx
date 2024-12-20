@@ -4,7 +4,10 @@ const Footer: React.FC = () => {
 
     return (
         <>
-        <footer className="h-10 p-10 text-gray-900 bg-blue-400 text-1xl font-semibold">РГУ нефти и газа (НИУ) имени И.М. Губкина</footer>   
+        <footer className="h-1 p-6 text-gray-900 bg-blue-400 text-1xl
+        font-semibold text-center text-h flex flex-col justify-center items-center">
+            РГУ нефти и газа (НИУ) имени И.М. Губкина
+            </footer>   
         </>      
     );
 };
