@@ -6,23 +6,28 @@ import Footer from './components/Footer/Footer';
 import CardList from './components/ImageDisplay/CardList';
 import ImageTable from './components/ImageDisplay/ImageTable';
 import Filters from './components/Filters/Filters';
+import { getImagesFromField } from './RestAPI/RestAPI';
+import { ImageData } from './Models/ImageData';
 
 export default function App() {
 
-  const [appState, setAppState] = useState([]);
   const isTable = localStorage.getItem('isTableView') === 'true';
+
+  const [imagesData, setImagesData] = useState(Array<ImageData>);
   const [isTableView, setIsTableView] = useState(isTable);
+  const FieldId = 1;
 
   useEffect(() => {
-    const apiUrl = '/api/CoreSampleImages/getfromfield/1';
-    axios
-      .get(apiUrl)
-      .then((resp) => {
-        setAppState(resp.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    const fetchImages = async () => {
+      try {
+        const data = await getImagesFromField(1);
+        setImagesData(data);
+      } catch (error) {
+        console.error('Error fetching images:', FieldId);
+      }
+    };
+
+    fetchImages();
   }, []);
 
   const toggleView = () => {
@@ -41,9 +46,9 @@ export default function App() {
           </div>
           <div className="w-1/4 bg-gray-200 overflow-y-auto">
           {isTableView ? (
-              <ImageTable imageDataList={appState} />
+              <ImageTable imageDataList={imagesData} />
             ) : (
-              <CardList imageDataList={appState} />
+              <CardList imageDataList={imagesData} />
             )}
           </div>
           <div className="w-2/3 bg-gray-300 overflow-hidden flex flex-col">
