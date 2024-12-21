@@ -36,7 +36,7 @@ export default function App() {
               ))}
             </ul>
           ) : (
-            <p>Loading...</p>
+            <p>Не удалось загрузить данные</p>
           )}
         </div>
         <Footer />
