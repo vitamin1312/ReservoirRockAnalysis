@@ -24,7 +24,11 @@ const ImageCard: React.FC<{ data: ImageData }> = ({ data }) => {
     }, [data.id]);
 
     return (
-        <div className="w-80 bg-gray-100 shadow-md rounded-lg p-2 m-3 flex flex-row justify-content flex-auto justify-center items-center">
+        <div className="w-96 bg-gray-100
+        shadow-md rounded-lg
+        p-0.5 m-0.5
+        flex flex-row flex-auto
+        justify-center items-center">
             <div className="inline-block w-40 h-auto m-1">
               {loading ? (
                 <p className="text-center">Loading...</p>
