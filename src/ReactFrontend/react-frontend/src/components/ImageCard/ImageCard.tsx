@@ -24,27 +24,31 @@ const ImageCard: React.FC<{ data: ImageData }> = ({ data }) => {
     }, [data.id]);
 
     return (
-        <div className="w-80 bg-gray-100 shadow-md rounded-lg p-4 flex flex-col justify-between">
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                {data.imageInfo.name || "Untitled"}
-            </h2>
-            {loading ? (
+        <div className="w-80 bg-gray-100 shadow-md rounded-lg p-2 m-3 flex flex-row justify-content flex-auto justify-center items-center">
+            <div className="inline-block w-40 h-auto m-1">
+              {loading ? (
                 <p className="text-center">Loading...</p>
-            ) : error ? (
+              ) : error ? (
                 <p className="text-center text-red-500">{error}</p>
-            ) : (
+              ) : (
                 <img
-                    src={imageData}
+                    src={imageData || "Loading"}
                     alt={data.imageInfo.name || "Image"}
-                    className="w-full h-48 object-cover rounded-md mb-4"
+                    className="object-cover rounded-md mb-4"
                 />
             )}
-            <p className="text-gray-900 text-sm mb-2">
+            </div>
+            <div className="inline-block m-1">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {data.imageInfo.name || "Untitled"}
+              </h2>
+              <h2 className="text-gray-900 text-sm mb-2">
                 {data.imageInfo.description || "Нет описания"}
-            </p>
-            <p className="text-gray-900 text-xs mt-auto">
+              </h2>
+              <p className="text-gray-900 text-xs mt-auto">
                 Загружено: {new Date(data.imageInfo.uploadDate).toLocaleString() || "Неизвестно"}
-            </p>
+              </p>
+            </div>
         </div>
     );
 };

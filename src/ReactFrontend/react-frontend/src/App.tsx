@@ -10,7 +10,7 @@ export default function App() {
   const [appState, setAppState] = useState([]);
 
   useEffect(() => {
-    const apiUrl = "/api/CoreSampleImages/getfromfield/1";
+    const apiUrl = "/api/CoreSampleImages/getfromfield/2";
     axios
       .get(apiUrl)
       .then((resp) => {
