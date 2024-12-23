@@ -32,7 +32,7 @@ const MainPage: React.FC = () => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex flex-grow overflow-hidden">
-        <div className="w-1/12 bg-gray-100 p-4">
+        <div className="w-1/6 bg-gray-100 p-4 overflow-y-auto h-full">
           <Filters onToggleView={toggleView} isTableView={isTableView} />
         </div>
         <div className="w-1/4 bg-gray-200 overflow-y-auto h-full">
@@ -42,7 +42,7 @@ const MainPage: React.FC = () => {
             <CardList imageDataList={imagesData} />
           )}
         </div>
-        <div className="w-2/3 bg-gray-300 flex flex-col h-full">
+        <div className="w-7/12 bg-gray-300 flex flex-col h-full">
           <div className="flex-grow bg-gray-400 p-4 overflow-auto">
             Image info
           </div>
