@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageData } from '../../Models/ImageData';
+import { ImageData } from '../../Models/ImageData'
 import ImageCard from './ImageCard';
 
 const CardList: React.FC<{ imageDataList: Array<ImageData> }> = ({ imageDataList }) => {

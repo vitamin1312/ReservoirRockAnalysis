@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaTimes, FaBars } from "react-icons/fa";
+import AuthModal from '../Auth/Auth';
 
 const Header: React.FC = () => {
 
@@ -20,6 +21,8 @@ const Header: React.FC = () => {
             link: "/about",
         },
     ]
+
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     return (
         <>
@@ -60,9 +63,14 @@ const Header: React.FC = () => {
                                     </li>
                                 ))}
                                 <button className="bg-green-300 text-[1.1rem] font-normal text-gray-900
-                                px-5 py-1 rounded lg:ml-10 md:ml-6 sm:ml-3 ml-3">
+                                px-5 py-1 rounded lg:ml-10 md:ml-6 sm:ml-3 ml-3" onClick={() => setIsAuthModalOpen(true)}>
                                     Войти
                                 </button>
+
+                                <AuthModal
+                                isOpen={isAuthModalOpen}
+                                onClose={() => setIsAuthModalOpen(false)}
+                                />
                         </ul>
                     </div>
                 </div>

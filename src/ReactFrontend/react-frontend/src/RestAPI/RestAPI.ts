@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ImageData, ImageInfo } from "../Models/ImageData";
+import { ImageData } from "../Models/ImageData";
 
 export const getImagesFromField = async (fieldId: number): Promise<Array<ImageData>> => {
     try {
