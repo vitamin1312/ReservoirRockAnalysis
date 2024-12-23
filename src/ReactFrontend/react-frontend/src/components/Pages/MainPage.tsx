@@ -2,22 +2,21 @@ import { useState, useEffect } from 'react';
 import CardList from '../ImageDisplay/CardList';
 import ImageTable from '../ImageDisplay/ImageTable';
 import Filters from '../../Filters/Filters';
-import { getImagesFromField } from '../../RestAPI/RestAPI';
+import { getAllImages } from '../../RestAPI/RestAPI';
 import { ImageData } from '../../Models/ImageData';
 
 const MainPage: React.FC = () => {
   const isTable = localStorage.getItem('isTableView') === 'true';
   const [imagesData, setImagesData] = useState<ImageData[]>([]);
   const [isTableView, setIsTableView] = useState(isTable);
-  const FieldId = 1;
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const data = await getImagesFromField(FieldId);
+        const data = await getAllImages();
         setImagesData(data);
       } catch (error) {
-        console.error('Error fetching images:', FieldId);
+        console.error('Error fetching images:');
       }
     };
 
