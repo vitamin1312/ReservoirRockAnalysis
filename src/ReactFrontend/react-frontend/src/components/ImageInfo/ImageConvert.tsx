@@ -1,7 +1,53 @@
+import React from "react";
+import { ImageData } from "../../Models/ImageData";
+import { deleteImage, putImage } from "../../RestAPI/RestAPI";
 
-const ImageConvert: React.FC = () =>
-    <div className="h-16 bg-gray-300 p-4">
-        Image convert
-    </div>
+interface ImageConvertProps {
+  image: ImageData | null;
+  onImageDeleted: () => void; // Callback для уведомления об удалении
+}
 
+const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) => {
+    if (!image) {
+      return <div>Выберите изображение для обработки.</div>;
+    }
+
+    const handleSaveChanges = async () => {
+        try {
+          await putImage(image.id, image);
+          onImageDeleted();
+        } catch (error) {
+          console.error("Ошибка при удалении изображения:", error);
+          alert("Не удалось сохранить изображение.");
+        }
+      };
+  
+    const handleDeleteImage = async () => {
+      try {
+        await deleteImage(image.id);
+        onImageDeleted();
+      } catch (error) {
+        console.error("Ошибка при удалении изображения:", error);
+        alert("Не удалось удалить изображение.");
+      }
+    };
+  
+    return (
+      <div className="flex flex-row justify-center items-center m-1 mb-16">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 m-0.5"
+          onClick={handleSaveChanges}
+        >
+          Сохранить изменения
+        </button>
+        <button
+          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 m-0.5"
+          onClick={handleDeleteImage}
+        >
+          Удалить изображение
+        </button>
+      </div>
+    );
+};
+  
 export default ImageConvert;

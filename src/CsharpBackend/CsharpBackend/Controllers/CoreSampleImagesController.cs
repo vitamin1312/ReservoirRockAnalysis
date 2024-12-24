@@ -205,7 +205,7 @@ namespace CsharpBackend
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("putitem/{id}")]
         [Authorize]
-        public async Task<IActionResult> PutImageInfo(int id, [FromForm] ImageInfoDTO imageInfoDTO)
+        public async Task<IActionResult> PutImageInfo(int id, [FromBody] ImageInfoDTO imageInfoDTO)
         {
 /*
             if (id != imageInfoDTO.Id)
@@ -214,6 +214,7 @@ namespace CsharpBackend
             }
 */
             var imageInfo = new ImageInfo(imageInfoDTO);
+            imageInfo.Id = id;
 
             checkFieldInInfo(imageInfo);
 

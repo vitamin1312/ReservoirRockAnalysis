@@ -146,3 +146,37 @@ export const getImagesByFilter = async (params: FilterParams): Promise<Array<Ima
   }
 };
 
+export const deleteImage = async (imageId: number): Promise<void> => {
+  try {
+      const response = await axiosInstance.delete(`CoreSampleImages/deleteitem/${imageId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching images:', error);
+      throw error;
+    }
+}
+
+export const putImage = async (imageId: number, imageData: ImageData): Promise<void> => {
+  try {
+    const response = await axiosInstance.put(`CoreSampleImages/putitem/${imageId}`,       {
+      id: imageData.imageInfo.id,
+      name: imageData.imageInfo.name,
+      description: imageData.imageInfo.description,
+      uploadDate: imageData.imageInfo.uploadDate,
+      creationDate: imageData.imageInfo.creationDate,
+      fieldId: imageData.imageInfo.fieldId,
+      field: imageData.imageInfo.field,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating image:', error);
+    throw error;
+  }
+};
+
