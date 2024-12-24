@@ -64,6 +64,16 @@ export const getImageFile = async (imageId: number): Promise<Blob> => {
   }
 };
 
+export const getImageUrl = async (imageId: number): Promise<string> => {
+  try {
+    const file = await getImageFile(imageId);
+    return window.URL.createObjectURL(new Blob([file]));
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+};
+
 export const getAllImages = async (): Promise<Array<ImageData>> => {
   try {
       const response = await axiosInstance.get(`CoreSampleImages/get`);
@@ -135,3 +145,4 @@ export const getImagesByFilter = async (params: FilterParams): Promise<Array<Ima
     throw error;
   }
 };
+

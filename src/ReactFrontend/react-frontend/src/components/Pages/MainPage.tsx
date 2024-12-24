@@ -5,6 +5,7 @@ import Filters from '../../Filters/Filters';
 import { getImagesByFilter } from '../../RestAPI/RestAPI';
 import { ImageData } from '../../Models/ImageData';
 import { FilterParams } from '../../Models/Filter';
+import ImageInfoView from '../ImageInfo/ImageInfoView';
 
 const MainPage: React.FC = () => {
   const isTable = localStorage.getItem('isTableView') === 'true';
@@ -17,6 +18,8 @@ const MainPage: React.FC = () => {
     haveMask: undefined,
   });
 
+  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+
   const fetchImages = async () => {
     try {
       const data = await getImagesByFilter(filterParams);
@@ -25,6 +28,10 @@ const MainPage: React.FC = () => {
     } catch (error) {
       console.error("Error fetching images:", error);
     }
+  };
+
+  const handleImageClick = (image: ImageData) => {
+    setSelectedImage(image);
   };
 
   useEffect(() => {
@@ -37,6 +44,7 @@ const MainPage: React.FC = () => {
     localStorage.setItem('isTableView', String(newView));
     setFilterParams({ ...filterParams});
   };
+
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -51,18 +59,16 @@ const MainPage: React.FC = () => {
         </div>
         <div className="w-1/4 bg-gray-200 overflow-y-auto h-full">
           {isTableView ? (
-            <ImageTable imageDataList={imagesData} />
+            <ImageTable imageDataList={imagesData} onImageClick={handleImageClick}/>
           ) : (
-            <CardList imageDataList={imagesData} />
+            <CardList imageDataList={imagesData} onImageClick={handleImageClick}/>
           )}
         </div>
-        <div className="w-7/12 bg-gray-300 flex flex-col h-full">
-          <div className="flex-grow bg-gray-400 p-4 overflow-auto">
-            Image info
-          </div>
-          <div className="h-16 bg-gray-500 p-4">
-            Image convert
-          </div>
+        <div className="w-7/12 bg-gray-100 flex flex-col h-full">
+            <ImageInfoView
+              image={selectedImage}
+        />
+
         </div>
       </div>
     </div>

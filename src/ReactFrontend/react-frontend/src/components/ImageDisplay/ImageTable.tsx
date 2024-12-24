@@ -1,7 +1,12 @@
 import React from 'react';
 import { ImageData } from '../../Models/ImageData';
 
-const ImageTable: React.FC<{ imageDataList: Array<ImageData> }> = ({ imageDataList }) => {
+interface ImageTableProps {
+  imageDataList: ImageData[];
+  onImageClick: (image: ImageData) => void;
+}
+
+const ImageTable: React.FC<ImageTableProps> = ({ imageDataList, onImageClick }) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-grow overflow-y-auto bg-white p-4">
@@ -16,7 +21,7 @@ const ImageTable: React.FC<{ imageDataList: Array<ImageData> }> = ({ imageDataLi
             </thead>
             <tbody>
               {imageDataList.map((item, index) => (
-                <tr key={index} className="border-b">
+                <tr key={index} className="border-b" onClick={() => onImageClick(item)}>
                   <td className="py-2 px-4 truncate">{item.imageInfo.name || "Untitled"}</td>
                   <td className="py-2 px-4 truncate">{item.imageInfo.description || "Нет описания"}</td>
                   <td className="py-2 px-4">
