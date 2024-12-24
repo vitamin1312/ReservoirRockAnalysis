@@ -1,6 +1,6 @@
 import React from "react";
 import { ImageData } from "../../Models/ImageData";
-import { deleteImage, putImage } from "../../RestAPI/RestAPI";
+import { deleteImage, generateMask, putImage } from "../../RestAPI/RestAPI";
 
 interface ImageConvertProps {
   image: ImageData | null;
@@ -11,6 +11,16 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) =>
     if (!image) {
       return <div>Выберите изображение для обработки.</div>;
     }
+
+    const handleGenerateMask = async () => {
+        try {
+            await generateMask(image.id);
+            alert("Маска успешно сгенерирована");
+        } catch (err) {
+            alert("Не удалось сгенерировать маску: " + String(err))
+        }
+        
+      };
 
     const handleSaveChanges = async () => {
         try {
@@ -45,6 +55,13 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) =>
           onClick={handleDeleteImage}
         >
           Удалить изображение
+        </button>
+
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 m-0.5"
+          onClick={handleGenerateMask}
+        >
+          Сгенерировать маску
         </button>
       </div>
     );

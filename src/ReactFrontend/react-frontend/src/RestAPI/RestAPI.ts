@@ -64,6 +64,68 @@ export const getImageFile = async (imageId: number): Promise<Blob> => {
   }
 };
 
+export const getImageWithMaskFile = async (imageId: number): Promise<Blob> => {
+  try {
+    const response = await axiosInstance.get(`CoreSampleImages/getimagewithmaskfile/${imageId}`, {
+      responseType: 'blob',
+    });
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Error fetching image with mask: ${response.statusText}`);
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error('Маска для этого изображения не сгенерирована.');
+    } else {
+      console.error('Error fetching image with mask:', error);
+      throw new Error('Ошибка при загрузке изображения с маской.');
+    }
+  }
+};
+
+
+export const getMaskFile = async (imageId: number): Promise<Blob> => {
+  try {
+    const response = await axiosInstance.get(`CoreSampleImages/getmaskfile/${imageId}`, {
+      responseType: 'blob',
+    });
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Error fetching image with mask: ${response.statusText}`);
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error('Маска для этого изображения не сгенерирована.');
+    } else {
+      console.error('Error fetching image with mask:', error);
+      throw new Error('Ошибка при загрузке изображения с маской.');
+    }
+  }
+};
+
+export const getMaskImageFile = async (imageId: number): Promise<Blob> => {
+  try {
+    const response = await axiosInstance.get(`CoreSampleImages/getmaskimagefile/${imageId}`, {
+      responseType: 'blob',
+    });
+    if (response.status === 200) {
+      return response.data;
+    } else {
+      throw new Error(`Error fetching image with mask: ${response.statusText}`);
+    }
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error('Маска для этого изображения не сгенерирована.');
+    } else {
+      console.error('Error fetching image with mask:', error);
+      throw new Error('Ошибка при загрузке изображения с маской.');
+    }
+  }
+};
+
+
 export const getImageUrl = async (imageId: number): Promise<string> => {
   try {
     const file = await getImageFile(imageId);
@@ -73,6 +135,38 @@ export const getImageUrl = async (imageId: number): Promise<string> => {
     throw error;
   }
 };
+
+
+export const getImageWithMaskUrl = async (imageId: number): Promise<string> => {
+  try {
+    const file = await getImageWithMaskFile(imageId);
+    return window.URL.createObjectURL(new Blob([file]));
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+};
+
+export const getMaskUrl = async (imageId: number): Promise<string> => {
+  try {
+    const file = await getMaskFile(imageId);
+    return window.URL.createObjectURL(new Blob([file]));
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+};
+
+export const getMaskImageUrl = async (imageId: number): Promise<string> => {
+  try {
+    const file = await getMaskImageFile(imageId);
+    return window.URL.createObjectURL(new Blob([file]));
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+};
+
 
 export const getAllImages = async (): Promise<Array<ImageData>> => {
   try {
@@ -126,10 +220,10 @@ export const getImagesByFilter = async (params: FilterParams): Promise<Array<Ima
     }
 
     if (params.searchQuery !== undefined) {
-      const query: string = params.searchQuery;
+      const query: string = params.searchQuery.toLocaleLowerCase();
       images = images.filter(image => {
-        const name = image.imageInfo?.name || "";
-        const description = image.imageInfo?.description || "";
+        const name = image.imageInfo?.name.toLocaleLowerCase() || "";
+        const description = image.imageInfo?.description.toLocaleLowerCase() || "";
         return name.includes(query) || description.includes(query);
       });
     }
@@ -180,3 +274,13 @@ export const putImage = async (imageId: number, imageData: ImageData): Promise<v
   }
 };
 
+
+export const generateMask = async (fieldId: number): Promise<void> => {
+  try {
+      const response = await axiosInstance.get(`CoreSampleImages/predict/${fieldId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching images:', error);
+      throw error;
+    }
+}

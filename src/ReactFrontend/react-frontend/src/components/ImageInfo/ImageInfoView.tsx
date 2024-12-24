@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ImageData } from '../../Models/ImageData';
+import { ImageData, FieldData } from '../../Models/ImageData';
 import ImageConvert from './ImageConvert';
-import { getImageUrl, getAllFields } from '../../RestAPI/RestAPI';
+import { getImageUrl, getImageWithMaskUrl, getAllFields, getMaskUrl, getMaskImageUrl } from '../../RestAPI/RestAPI';
 import ImageComponent from '../ImageDisplay/ImageComponent';
-import { FieldData } from '../../Models/ImageData';
+import RadioGroup from '../UI/RadioGroup';
 import Dropdown from '../UI/Dropdown';
 
 interface ImageInfoProps {
@@ -14,6 +14,14 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
   const [fieldsData, setFieldsData] = useState<Array<FieldData>>([]);
   const [selectedFieldId, setSelectedFieldId] = useState<number>(image?.imageInfo.fieldId || 0);
   const [currentImage, setCurrentImage] = useState<ImageData | null>(image);
+  const [selectedFunction, setSelectedFunction] = useState<string>('imageFunc');
+
+  const urlFunctions: Record<string, (id: number) => Promise<string>> = {
+    imageFunc: getImageUrl,
+    maskFunc: getMaskUrl,
+    maskImageFunc: getMaskImageUrl,
+    imagewithmaskFunc: getImageWithMaskUrl,
+  };
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -34,6 +42,26 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
       setSelectedFieldId(image.imageInfo.fieldId); // Обновляем месторождение
     }
   }, [image]);
+
+  useEffect(() => {
+    if (currentImage) {
+      const fetchImage = async () => {
+        try {
+          const url: string = await urlFunctions[selectedFunction](currentImage.id);
+          setCurrentImage(prev => ({
+            ...prev!,
+            imageInfo: {
+              ...prev!.imageInfo,
+              url // обновляем url изображения
+            }
+          }));
+        } catch (error) {
+          console.error('Error fetching image URL:', error);
+        }
+      };
+      fetchImage();
+    }
+  }, [selectedFunction, currentImage?.id]); // Обновляем при изменении selectedFunction или currentImage.id
 
   const handleFieldSelect = (id: number) => {
     setSelectedFieldId(id);
@@ -74,12 +102,28 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
           <div className="flex flex-col bg-gray-100 p-6 shadow-md overflow-auto space-y-6">
             <div className="w-full flex justify-center">
               <div className="w-3/4">
-                <ImageComponent imageId={currentImage.id} getImage={getImageUrl} />
+                {/* Передаем функцию для загрузки изображения */}
+                <ImageComponent
+                  imageId={currentImage.id}
+                  getImage={urlFunctions[selectedFunction]}
+                />
               </div>
             </div>
 
-            <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">Информация</h3>
+            <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">Выбор типа изображения</h3>
+            <RadioGroup
+              options={[
+                { value: 'imageFunc', label: 'Изображение' },
+                { value: 'maskFunc', label: 'Маска'},
+                { value: 'maskImageFunc', label: 'Изображение маски'},
+                { value: 'imagewithmaskFunc', label: 'Изображение с маской'}
+              ]}
+              name="urlFunction"
+              selectedValue={selectedFunction}
+              onChange={setSelectedFunction}
+            />
 
+            <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">Информация</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-gray-700 text-sm font-medium mb-1">Название:</label>
