@@ -5,11 +5,17 @@ export interface ImageInfo {
     uploadDate: string,
     creationDate: string,
     fieldId: number,
-    field: any
+    field: FieldData
 }
 
 export interface ImageData {
     id: number,
     imageInfoId: number,
     imageInfo: ImageInfo,
+}
+
+export interface FieldData {
+    id: number,
+    name: string,
+    description: string
 }

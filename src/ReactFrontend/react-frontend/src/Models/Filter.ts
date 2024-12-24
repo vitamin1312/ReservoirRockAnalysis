@@ -1,7 +1,6 @@
 export interface FilterParams {
-    isTable: boolean;
-    searchQuery: string;
-    ascengingOrder: boolean;
-    sortField?: string;
-    haveMask: boolean;
+    searchQuery?: string;
+    ascendingOrder: boolean;
+    sortField?: number;
+    haveMask?: boolean;
   }
