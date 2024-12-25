@@ -4,8 +4,8 @@ export interface ImageInfo {
     description: string,
     uploadDate: string,
     creationDate: string,
-    fieldId: number,
-    field: FieldData
+    fieldId: number | null,
+    field: FieldData | null
 }
 
 export interface ImageData {

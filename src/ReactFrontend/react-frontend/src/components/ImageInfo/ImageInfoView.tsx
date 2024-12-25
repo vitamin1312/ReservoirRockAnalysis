@@ -23,23 +23,24 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
     imagewithmaskFunc: getImageWithMaskUrl,
   };
 
+  const fetchFields = async () => {
+    try {
+      const data = await getAllFields();
+      setFieldsData(data);
+    } catch (error) {
+      console.error('Error fetching fields:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchFields = async () => {
-      try {
-        const data = await getAllFields();
-        setFieldsData(data);
-      } catch (error) {
-        console.error('Error fetching fields:', error);
-      }
-    };
 
     fetchFields();
   }, []);
 
   useEffect(() => {
-    setCurrentImage(image); // Обновляем изображение при изменении
+    setCurrentImage(image);
     if (image) {
-      setSelectedFieldId(image.imageInfo.fieldId); // Обновляем месторождение
+      setSelectedFieldId(image.imageInfo.fieldId?? 0);
     }
   }, [image]);
 
@@ -52,7 +53,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
             ...prev!,
             imageInfo: {
               ...prev!.imageInfo,
-              url // обновляем url изображения
+              url
             }
           }));
         } catch (error) {
@@ -61,7 +62,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
       };
       fetchImage();
     }
-  }, [selectedFunction, currentImage?.id]); // Обновляем при изменении selectedFunction или currentImage.id
+  }, [selectedFunction, currentImage?.id]);
 
   const handleFieldSelect = (id: number) => {
     setSelectedFieldId(id);
@@ -92,7 +93,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
   };
 
   const handleImageDeleted = () => {
-    setCurrentImage(null); // Обновляем состояние после удаления
+    setCurrentImage(null);
   };
 
   return (
@@ -139,7 +140,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
                 <Dropdown
                   label="Месторождение:"
                   placeholder="Выберите месторождение"
-                  options={[{ id: null, name: 'Нет месторождения', description: 'Нет месторождения' }, ...fieldsData]}
+                  options={[{ id: -1, name: 'Нет месторождения', description: 'Нет месторождения' }, ...fieldsData]}
                   onSelect={handleFieldSelect}
                   selectedId={selectedFieldId}
                 />

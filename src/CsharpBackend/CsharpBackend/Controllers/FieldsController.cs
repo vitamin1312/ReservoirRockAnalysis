@@ -24,7 +24,7 @@ namespace CsharpBackend.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Route("create")]
-        public async Task<ActionResult<Field>> PostField([FromForm] Field @field)
+        public async Task<ActionResult<Field>> PostField([FromBody] Field @field)
         {
             await repository.CreateField(@field);
             await repository.Save();

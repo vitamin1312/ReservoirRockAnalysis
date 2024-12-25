@@ -252,6 +252,8 @@ export const deleteImage = async (imageId: number): Promise<void> => {
 
 export const putImage = async (imageId: number, imageData: ImageData): Promise<void> => {
   try {
+    if (imageData.imageInfo.fieldId == -1)
+      imageData.imageInfo.fieldId = null;
     const response = await axiosInstance.put(`CoreSampleImages/putitem/${imageId}`,       {
       id: imageData.imageInfo.id,
       name: imageData.imageInfo.name,
@@ -284,3 +286,57 @@ export const generateMask = async (fieldId: number): Promise<void> => {
       throw error;
     }
 }
+
+export const deleteField = async (fieldId: number): Promise<void> => {
+  try {
+    const response = await axiosInstance.delete(`Fields/deleteitem/${fieldId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+}
+
+export const createField = async (name: string, description: string): Promise<void> => {
+  try {
+    const response = await axiosInstance.post(`Fields/create`,       {
+      name: name,
+      description: description
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating image:', error);
+    throw error;
+  }
+};
+
+export const uploadImage = async (file: File, description: string, fieldId: number) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('description', description);
+  formData.append('fieldId', fieldId.toString());
+
+  try {
+    const response = await axiosInstance.post('CoreSampleImages/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    console.log('Image uploaded successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error('Error uploading image:', error.response?.data);
+    } else {
+      console.error('Unexpected error:', error);
+    }
+    throw error;
+  }
+};

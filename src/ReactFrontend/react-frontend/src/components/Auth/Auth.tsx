@@ -12,13 +12,43 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const validateForm = () => {
+    let valid = true;
+
+    // Проверка длины логина
+    if (login.length < 4) {
+      setLoginError("Логин должен быть не короче 4 символов.");
+      valid = false;
+    } else {
+      setLoginError(null);
+    }
+
+    // Проверка длины пароля
+    if (password.length < 4) {
+      setPasswordError("Пароль должен быть не короче 4 символов.");
+      valid = false;
+    } else {
+      setPasswordError(null);
+    }
+
+    return valid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setAuthError("");
+
+    // Проверка валидации
+    if (!validateForm()) {
+      return; // Прерываем отправку формы, если валидация не пройдена
+    }
 
     try {
-      const token = await authUser(login, password)
+      const token = await authUser(login, password);
       if (token) {
         localStorage.setItem("jwtToken", token);
         setAuthError('');
@@ -44,21 +74,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       <h2 className="text-2xl font-bold mb-4">Авторизация</h2>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <input
-          type="login"
+          type="text"
           placeholder="Логин"
           value={login}
           onChange={(e) => setEmail(e.target.value)}
           className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-          required
         />
+        {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
+
         <input
           type="password"
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-          required
         />
+        {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+
         <button
           type="submit"
           className="bg-blue-400 text-white py-2 rounded-md hover:bg-blue-600"
@@ -66,9 +98,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           Войти
         </button>
       </form>
-      <p className="text-red-500 m-2">
-        {authError}
-      </p>
+      <p className="text-red-500 m-2">{authError}</p>
       <button
         onClick={onClose}
         className="mt-4 text-gray-500 hover:underline"

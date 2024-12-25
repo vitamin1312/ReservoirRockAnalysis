@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using CsharpBackend.Models;
 using CsharpBackend.Models.DTO;
+using System.Reflection.Metadata;
 
 namespace CsharpBackend.Data
 {
@@ -22,6 +23,12 @@ namespace CsharpBackend.Data
 
             modelBuilder.Ignore<AuthOptions>();
             modelBuilder.Ignore<ImageInfoDTO>();
+
+            modelBuilder.Entity<Field>()
+                .HasMany(f => f.FieldImages)
+                .WithOne(i => i.Field)
+                .HasForeignKey(i => i.FieldId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
