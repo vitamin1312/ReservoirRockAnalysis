@@ -30,6 +30,10 @@ const MainPage: React.FC = () => {
     }
   };
 
+  const refreshImages = () => {
+    fetchImages();
+  };
+
   const handleImageClick = (image: ImageData) => {
     setSelectedImage(image);
   };
@@ -67,6 +71,7 @@ const MainPage: React.FC = () => {
         <div className="w-7/12 bg-gray-100 flex flex-col h-full overflow-y-auto">
           <ImageInfoView
             image={selectedImage}
+            fetchImages={refreshImages}
           />
         </div>
       </div>

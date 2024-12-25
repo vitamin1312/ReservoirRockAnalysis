@@ -8,7 +8,7 @@ import { deleteField, createField } from "../../RestAPI/RestAPI";
 
 const ImageUploadPage: React.FC = () => {
   const [fieldsData, setFieldsData] = useState<FieldData[]>([]);
-  const [imageData, setImageData] = useState<ImageData | null>(null);
+  const [imageData, _] = useState<ImageData | null>(null);
 
   const handleFieldDelete = async (field: FieldData) => {
     await deleteField(field.id ?? -1);

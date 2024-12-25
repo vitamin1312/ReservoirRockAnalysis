@@ -4,10 +4,11 @@ import { deleteImage, generateMask, putImage } from "../../RestAPI/RestAPI";
 
 interface ImageConvertProps {
   image: ImageData | null;
-  onImageDeleted: () => void; // Callback для уведомления об удалении
+  onImageDeleted: () => void;
+  fetchImages: () => void;
 }
 
-const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) => {
+const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted, fetchImages }) => {
     if (!image) {
       return <div>Выберите изображение для обработки.</div>;
     }
@@ -16,6 +17,7 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) =>
         try {
             await generateMask(image.id);
             alert("Маска успешно сгенерирована");
+            fetchImages();
         } catch (err) {
             alert("Не удалось сгенерировать маску: " + String(err))
         }
@@ -26,6 +28,7 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) =>
         try {
           await putImage(image.id, image);
           onImageDeleted();
+          fetchImages();
         } catch (error) {
           console.error("Ошибка при удалении изображения:", error);
           alert("Не удалось сохранить изображение.");
@@ -36,6 +39,7 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted }) =>
       try {
         await deleteImage(image.id);
         onImageDeleted();
+        fetchImages();
       } catch (error) {
         console.error("Ошибка при удалении изображения:", error);
         alert("Не удалось удалить изображение.");

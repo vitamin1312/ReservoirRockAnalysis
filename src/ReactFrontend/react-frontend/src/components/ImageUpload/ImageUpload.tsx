@@ -69,7 +69,7 @@ const fetchFields = async () => {
     {uploadError && <div className="text-red-500">{uploadError}</div>}
     <button
         onClick={handleUpload}
-        className="bg-blue-500 text-white font-semibold py-2 px-6 rounded-md shadow-md transition-all hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 active:scale-95"
+        className="bg-green-300 text-black font-semibold py-2 px-6 rounded-md shadow-md transition-all hover:bg-green-400 focus:outline-none focus:ring-4 focus:ring-blue-300 active:scale-95"
     >
         Загрузить
     </button>

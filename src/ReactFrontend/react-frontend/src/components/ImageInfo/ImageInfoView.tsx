@@ -8,9 +8,10 @@ import Dropdown from '../UI/Dropdown';
 
 interface ImageInfoProps {
   image: ImageData | null;
+  fetchImages: () => void;
 }
 
-const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
+const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
   const [fieldsData, setFieldsData] = useState<Array<FieldData>>([]);
   const [selectedFieldId, setSelectedFieldId] = useState<number>(image?.imageInfo.fieldId || 0);
   const [currentImage, setCurrentImage] = useState<ImageData | null>(image);
@@ -32,6 +33,24 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
     }
   };
 
+  const fetchImage = async () => {
+    try {
+      if (currentImage) {
+      
+        const url: string = await urlFunctions[selectedFunction](currentImage.id);
+        setCurrentImage(prev => ({
+          ...prev!,
+          imageInfo: {
+            ...prev!.imageInfo,
+            url
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching image URL:', error);
+    }
+  };
+
   useEffect(() => {
 
     fetchFields();
@@ -46,20 +65,6 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
 
   useEffect(() => {
     if (currentImage) {
-      const fetchImage = async () => {
-        try {
-          const url: string = await urlFunctions[selectedFunction](currentImage.id);
-          setCurrentImage(prev => ({
-            ...prev!,
-            imageInfo: {
-              ...prev!.imageInfo,
-              url
-            }
-          }));
-        } catch (error) {
-          console.error('Error fetching image URL:', error);
-        }
-      };
       fetchImage();
     }
   }, [selectedFunction, currentImage?.id]);
@@ -80,6 +85,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
         ...currentImage,
         imageInfo: { ...currentImage.imageInfo, name },
       });
+      fetchImage();
     }
   };
 
@@ -165,7 +171,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image }) => {
                 />
               </div>
               <div>
-                <ImageConvert image={currentImage} onImageDeleted={handleImageDeleted} />
+                <ImageConvert image={currentImage} onImageDeleted={handleImageDeleted} fetchImages={fetchImages}/>
               </div>
             </div>
           </div>
