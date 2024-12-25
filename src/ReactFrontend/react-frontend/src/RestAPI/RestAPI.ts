@@ -317,10 +317,16 @@ export const createField = async (name: string, description: string): Promise<vo
 };
 
 export const uploadImage = async (file: File, description: string, fieldId: number) => {
+  var newfieldId: number | null;
+  if (fieldId == -1)
+    newfieldId = null;
+  else newfieldId = fieldId
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('name', file.name)
   formData.append('description', description);
-  formData.append('fieldId', fieldId.toString());
+  if (newfieldId !== null)
+    formData.append('fieldId', newfieldId.toString());
 
   try {
     const response = await axiosInstance.post('CoreSampleImages/upload', formData, {
