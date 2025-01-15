@@ -1,2 +1,5 @@
 aiogram
 onnxruntime-gpu
+opencv-python
+numpy
+pillow
