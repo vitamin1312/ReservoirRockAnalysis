@@ -3,6 +3,7 @@ import onnxruntime as ort
 import numpy as np
 import cv2
 import PIL
+import tempfile
 
 
 class ONNXModel:
@@ -81,11 +82,11 @@ class ONNXModel:
         return min_x, min_y, max_x, max_y
     
     def predict_mask(self, image):
- 
+
         y_step = int(image.shape[1] / self.n_parts_y)
         x_step = int(image.shape[2] / self.n_parts_x)
 
-        part_paths = ['temp\\' + f'part{i}.png' for i in range(6)]
+        part_paths = []
 
         num = 0
         flag = True
@@ -97,13 +98,30 @@ class ONNXModel:
             mask = self.predict(image_part)[0][0]
             mask = mask.argmax(0)
             image_mask = self.get_image_mask(mask)
-            flag = cv2.imwrite(part_paths[num], image_mask[:, :, ::-1]) and flag
-            num += 1
+
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_file:
+                temp_path = temp_file.name
+                flag = cv2.imwrite(temp_path, image_mask[:, :, ::-1]) and flag
+                part_paths.append(temp_path)
+                num += 1
 
         assert flag
 
         return part_paths
     
+    def predict_full_mask(self, image):
+
+        init_size = (image.shape[2], image.shape[1])
+        image = np.transpose(image, (1, 2, 0))
+        image = cv2.resize(image, (self.size, self.size))
+        image = np.transpose(image, (2, 0, 1))
+        mask = self.predict(image)[0][0]
+        mask = mask.argmax(0)
+        mask = self.get_image_mask(mask).astype(np.uint8)
+        mask = cv2.resize(mask, init_size)
+        
+        return mask
+
     def assemble_mask(self, orig_shape, parts_path):
         y_step = int(orig_shape[1] / self.n_parts_y)
         x_step = int(orig_shape[2] / self.n_parts_x)
@@ -126,12 +144,23 @@ class ONNXModel:
 
         return full_image_mask
     
-    @staticmethod
-    def preprocess(image):
-        return (image / 255).astype(np.float32)
+    def preprocess(self, image):
+        image = np.array(image)
+        cut = True if (image.shape[0] > self.size and image.shape[1] > self.size) else False
+        image = np.transpose(image, (2, 0, 1))
+        return (image / 255).astype(np.float32), cut
     
     def predict_image(self, image):
-        image = self.preprocess(image)
-        parts_path = self.predict_mask(image)
-        return self.assemble_mask(image.shape, parts_path)
+        transp_image, cut = self.preprocess(image)
 
+        if cut:
+            parts_path = self.predict_mask(transp_image)
+            mask = self.assemble_mask(transp_image.shape, parts_path)
+        else:
+            mask = self.predict_full_mask(transp_image)
+            
+        not_mask = np.array(~np.any(mask, axis=2))
+        image_without_pores = image * np.stack([not_mask] * 3, axis=2)
+        image_wiht_pores = image_without_pores + mask
+
+        return image_wiht_pores
