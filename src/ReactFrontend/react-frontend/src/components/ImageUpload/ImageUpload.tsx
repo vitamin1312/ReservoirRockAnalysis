@@ -47,34 +47,35 @@ const fetchFields = async () => {
   };
 
   return (
-    <div className="mb-4">
-    <input
-        type="file"
-        onChange={handleFileChange}
-        className="px-4 py-2 border border-gray-300 rounded-md mb-3"
-    />
-    <Dropdown
-        label="Месторождение:"
-        placeholder="Выберите месторождение"
-        options={[{ id: -1, name: 'Нет месторождения', description: 'Нет месторождения' }, ...fieldsData]}
-        onSelect={handleFieldSelect}
-        selectedId={selectedFieldId}
-    />
-    <h3 className="text-xl mb-3">Описание изображения</h3>
-    <textarea
-        value={newDescription}
-        onChange={(e) => setNewDescription(e.target.value)}
-        className="w-full h-16 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
-    />
-    {uploadError && <div className="text-red-500">{uploadError}</div>}
-    <button
-        onClick={handleUpload}
-        className="bg-green-300 text-black font-semibold py-2 px-6 rounded-md shadow-md transition-all hover:bg-green-400 focus:outline-none focus:ring-4 focus:ring-blue-300 active:scale-95"
-    >
-        Загрузить
-    </button>
+    <div className="flex flex-col h-full">
+      <div className="overflow-y-auto h-44 md-4">
+        <input
+            type="file"
+            onChange={handleFileChange}
+            className="px-4 py-2 border border-gray-300 rounded-md mb-3"
+        />
+        <Dropdown
+            label="Месторождение:"
+            placeholder="Выберите месторождение"
+            options={[{ id: -1, name: 'Нет месторождения', description: 'Нет месторождения' }, ...fieldsData]}
+            onSelect={handleFieldSelect}
+            selectedId={selectedFieldId}
+        />
+        <h3 className="text-xl mb-3">Описание изображения</h3>
+        <textarea
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+            className="w-full h-16 border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+        />
+        {uploadError && <div className="text-red-500">{uploadError}</div>}
+        <button
+            onClick={handleUpload}
+            className="bg-green-300 text-black font-semibold py-2 px-6 rounded-md shadow-md transition-all hover:bg-green-400 focus:outline-none focus:ring-4 focus:ring-blue-300 active:scale-95"
+        >
+            Загрузить
+        </button>
+        </div>
     </div>
-
   );
 };
 
