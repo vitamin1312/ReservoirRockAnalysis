@@ -77,7 +77,7 @@ async def handle_image(message: Message):
             os.remove(temp_file_path)
 
     except Exception as e:
-        await message.reply(f"Произошла ошибка при обработке изображения: {str(e)}")
+        await message.reply(f"Произошла ошибка на стороне сервера")
 
 
 async def main():
