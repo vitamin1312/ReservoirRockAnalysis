@@ -3,3 +3,8 @@ tqdm
 numpy<2
 opencv-python
 matplotlib
+segmentation-models-pytorch
+albumentations
+pandas
+scikit-learn
+openpyxl
