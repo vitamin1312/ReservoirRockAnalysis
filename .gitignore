@@ -6,6 +6,9 @@ __pycache__/
 # App config
 appsettings.json
 
+# Jet Brains
+.idea
+
 # C extensions
 *.so
 
