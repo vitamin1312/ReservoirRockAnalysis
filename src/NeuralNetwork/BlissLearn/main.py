@@ -3,8 +3,10 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, TensorDataset, random_split
+import time
 
 from BlissLearner import BlissLearner
+from CustomBatchCallbacks import SegmentationMetricsCallback
 
 torch.manual_seed(42)
 X = torch.linspace(-5, 5, 100).reshape(-1, 1)
@@ -25,17 +27,23 @@ class BinaryClassifier(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        time.sleep(1)
         return self.sigmoid(self.linear(x))
+
 
 model = BinaryClassifier()
 criterion = nn.BCELoss()
+metric = nn.MSELoss()
+
+callback = SegmentationMetricsCallback(1, {'MSE': metric})
 
 learner = BlissLearner(model,
                        criterion,
                        optim.SGD,
                        {'lr': 0.01},
                        train_loader,
-                       test_loader
+                       test_loader,
+                       [callback]
                        )
 learner.fit(100)
 model = learner.model

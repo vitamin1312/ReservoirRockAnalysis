@@ -2,16 +2,18 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 import sys
-try:
+def is_notebook():
+    return "ipykernel" in sys.modules
+if is_notebook():
     from tqdm.notebook import tqdm
-except ImportError:
+else:
     from tqdm import tqdm
 
 from .BlissTypes import (criterion,
                         nullable_scheduler,
-                        nullable_list,
                         optimizer_type,
-                        step_function)
+                        step_function,
+                        nullable_batchcallbacks_list)
 
 
 class BlissLearner:
@@ -22,7 +24,9 @@ class BlissLearner:
                  optimizer_kwargs: dict,
                  train_dataloader: DataLoader,
                  test_dataloader: DataLoader,
-                 # batch_callbacks: nullable_list = None,
+                 batch_callbacks: nullable_batchcallbacks_list = None,
+
+                 # todo: add next fields using
                  scheduler: nullable_scheduler = None,
                  use_amp: bool = False,
                  *args,
@@ -34,7 +38,7 @@ class BlissLearner:
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
         self.optimizer = optimizer_class(model.parameters(), **optimizer_kwargs)
-        # self.batch_callbacks = batch_callbacks
+        self.batch_callbacks = batch_callbacks if batch_callbacks else []
 
     ################### Loss calculation ###################
     def calc_loss_function(self, outputs: torch.Tensor, yb: torch.Tensor) -> torch.Tensor:
@@ -55,17 +59,17 @@ class BlissLearner:
         self.optimizer.zero_grad()
         loss, outputs = self.calc_loss_with_grad(xb, yb)
         self.optimizer.step()
-        # with torch.no_grad():
-        #     for callback in self.batch_callbacks:
-        #         callback.on_batch_end(yb, outputs)
+        with torch.no_grad():
+            for callback in self.batch_callbacks:
+                callback.on_batch_end(yb, outputs)
         return loss.item()
 
     def validate_step(self, xb: torch.Tensor, yb: torch.Tensor) -> float:
         with torch.no_grad():
             loss, outputs = self.calc_loss(xb, yb)
 
-            # for callback in self.batch_callbacks:
-            #     callback.on_batch_end(yb, outputs)
+            for callback in self.batch_callbacks:
+                callback.on_batch_end(yb, outputs)
 
         return loss.item()
 
@@ -73,16 +77,25 @@ class BlissLearner:
     def fit(self, number_of_epochs: int = 1) -> None:
         for epoch in range(1, number_of_epochs + 1):
             print(f'epoch: {epoch}', flush=True)
+            print(f'training', flush=True)
             sys.stdout.flush()
-            self.do_epoch(self.train_step)
-            self.do_epoch(self.validate_step)
+            self.do_epoch(self.train_step, self.train_dataloader)
+            print(f'validating', flush=True)
+            sys.stdout.flush()
+            self.do_epoch(self.validate_step, self.test_dataloader)
 
     # https://stackoverflow.com/questions/64727187/tqdm-multiple-progress-bars-with-nested-for-loops-in-pycharm
-    def do_epoch(self, batch_processing: step_function) -> None:
-        for batch_number, (xb, yb) in tqdm(enumerate(self.train_dataloader),
-                                     position=1,
-                                     desc="batches",
-                                     leave=False,
-                                     ncols=500,
-                                     total=len(self.train_dataloader)):
+    def do_epoch(self, batch_processing: step_function, dataloader: DataLoader) -> None:
+        for batch_number, (xb, yb) in tqdm(
+                enumerate(dataloader),
+                position=1,
+                desc="batches",
+                leave=False,
+                ncols=80,
+                total=len(dataloader)
+        ):
+
             batch_processing(xb, yb)
+
+        for callback in self.batch_callbacks:
+            callback.on_epoch_end()
