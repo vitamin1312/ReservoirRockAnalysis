@@ -4,7 +4,7 @@ from typing import Callable, Union, Type
 from torch.optim.lr_scheduler import _LRScheduler
 from torch import optim
 
-from .BatchCallback import BatchCallback
+from BlissCallback import BlissCallback
 
 # Python
 nullable_int = Union[None, int]
@@ -21,4 +21,4 @@ criterion = Callable[[tensor_or_scaler, tensor_or_scaler], tensor_or_scaler]
 # Collections
 nullable_list = Union[None, list]
 nullable_criterion_dict = Union[None, dict[str, criterion]]
-nullable_batchcallbacks_list = Union[None, list[BatchCallback]]
+nullable_callbacks_list = Union[None, list[BlissCallback]]

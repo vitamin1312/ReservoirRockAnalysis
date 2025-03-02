@@ -3,52 +3,74 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, TensorDataset, random_split
-import time
-
 from BlissLearner import BlissLearner
-from CustomBatchCallbacks import SegmentationMetricsCallback
+from CustomBlissCallbacks import SegmentationMetricsCallback, PrintCriteriaCallback
 
 torch.manual_seed(42)
-X = torch.linspace(-5, 5, 100).reshape(-1, 1)
-y = (2 * X + 3 + torch.randn_like(X) * 2 > 3).float()
+
+# Генерируем более сложные данные
+X = torch.randn(500, 2)
+y = torch.tensor((X[:, 0]**2 + X[:, 1]**2 > 1).long() + (X[:, 0] + X[:, 1] > 1).long())
 
 dataset = TensorDataset(X, y)
 train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-class BinaryClassifier(nn.Module):
+# Усложняем модель
+class MultiClassClassifier(nn.Module):
     def __init__(self):
         super().__init__()
-        self.linear = nn.Linear(1, 1)
-        self.sigmoid = nn.Sigmoid()
+        self.model = nn.Sequential(
+            nn.Linear(2, 16),
+            nn.ReLU(),
+            nn.Linear(16, 16),
+            nn.ReLU(),
+            nn.Linear(16, 3)  # Три класса
+        )
 
     def forward(self, x):
-        time.sleep(1)
-        return self.sigmoid(self.linear(x))
+        return self.model(x)
 
 
-model = BinaryClassifier()
-criterion = nn.BCELoss()
-metric = nn.MSELoss()
+model = MultiClassClassifier()
+criterion = nn.CrossEntropyLoss()
+metric = nn.CrossEntropyLoss()  # Будем логировать ту же метрику, что и loss
+mse = nn.MSELoss()
 
-callback = SegmentationMetricsCallback(1, {'MSE': metric})
+def my_metric(yb, outputs):
+    return metric(outputs, yb).item()
+
+def my_mse(yb, outputs):
+    return mse(yb.float(), outputs.float()).item()
+
+
+callbacks = [SegmentationMetricsCallback(num_classes=3,
+                                         common_metrics={'CrossEntropy': my_metric},
+                                         class_metrics={'MSE': my_mse}), PrintCriteriaCallback()]
 
 learner = BlissLearner(model,
                        criterion,
-                       optim.SGD,
+                       optim.Adam,  # Adam лучше подходит для нелинейных задач
                        {'lr': 0.01},
                        train_loader,
                        test_loader,
-                       [callback]
+                       callbacks
                        )
-learner.fit(100)
-model = learner.model
 
-plt.scatter(X.numpy(), y.numpy(), label="True Labels", alpha=0.5)
-plt.plot(X.numpy(), (model(X).detach().numpy() > 0.5).astype(int), color='red', label="Predicted Boundary")
-plt.legend()
+learner.fit(10)  # Увеличим количество эпох
+
+# Визуализация границы принятия решений
+plt.figure(figsize=(8, 6))
+xx, yy = torch.meshgrid(torch.linspace(-3, 3, 100), torch.linspace(-3, 3, 100))
+grid = torch.cat((xx.reshape(-1, 1), yy.reshape(-1, 1)), dim=1)
+with torch.no_grad():
+    preds = model(grid).argmax(dim=1).reshape(xx.shape)
+
+plt.contourf(xx, yy, preds.numpy(), alpha=0.3)
+plt.scatter(X[:, 0].numpy(), X[:, 1].numpy(), c=y.numpy(), edgecolors='k', cmap='viridis')
+plt.title("Граница принятия решений модели")
 plt.show()
