@@ -1,11 +1,11 @@
-import sys
-from collections import defaultdict
 import torch
 
 from BlissCallback import BlissCallback
 from BlissTypes import nullable_criterion_dict
 from CallbackState import CallbackState
 
+
+################### Classification Callback ###################
 class SegmentationMetricsCallback(BlissCallback):
     def __init__(
             self,
@@ -28,7 +28,7 @@ class SegmentationMetricsCallback(BlissCallback):
         class_metrics_values = dict()
         for name, metric in self.class_metrics.items():
             for class_num in range(self.num_classes):
-                class_outputs = torch.where(outputs == class_num, 1, 0).argmax(axis=1)
+                class_outputs = torch.where(outputs == class_num, 1, 0).argmax(dim=1)
                 class_targets = torch.where(yb == class_num, 1, 0)
                 class_metrics_values[name + f'class{class_num}'] = metric(class_outputs, class_targets)
         return class_metrics_values
@@ -51,7 +51,7 @@ class SegmentationMetricsCallback(BlissCallback):
         metrics = self.on_batch_end(yb, outputs)
 
         for name, value in metrics.items():
-            callback_state.batch_train_criteria[name].append(value)
+            callback_state.update_criteria(name, value, train=True)
 
     def on_eval_batch_end(self,
                            yb: torch.Tensor,
@@ -61,7 +61,7 @@ class SegmentationMetricsCallback(BlissCallback):
         metrics = self.on_batch_end(yb, outputs)
 
         for name, value in metrics.items():
-            callback_state.batch_eval_criteria[name].append(value)
+            callback_state.update_criteria(name, value, train=False)
 
 
     def on_train_epoch_end(self,
@@ -73,10 +73,11 @@ class SegmentationMetricsCallback(BlissCallback):
     def on_eval_epoch_end(self,
                      callback_state,
                      *args, **kwargs) -> None:
-        callback_state.accumulate_train_batch_to_epoch()
-        callback_state.clear_train_batch_criteria()
+        callback_state.accumulate_eval_batch_to_epoch()
+        callback_state.clear_eval_batch_criteria()
 
 
+################### Print Callback ###################
 class PrintCriteriaCallback(BlissCallback):
     def on_train_batch_end(self,
                      yb: torch.Tensor,
@@ -95,7 +96,7 @@ class PrintCriteriaCallback(BlissCallback):
     def on_train_epoch_end(self,
                      callback_state,
                      *args, **kwargs) -> None:
-        print(f'loss_function: {callback_state.train_loss_function_values[-1]:.3f}')
+        print(f'loss_function: {callback_state.epoch_train_loss[-1]:.3f}')
         for criteria_name, value in callback_state.get_last_train_criteria_values().items():
             print(f'{criteria_name}: {value:.3f}')
         print()
@@ -103,7 +104,7 @@ class PrintCriteriaCallback(BlissCallback):
     def on_eval_epoch_end(self,
                      callback_state,
                      *args, **kwargs) -> None:
-        print(f'loss_function: {callback_state.eval_loss_function_values[-1]:.3f}')
+        print(f'loss_function: {callback_state.epoch_eval_loss[-1]:.3f}')
         for criteria_name, value in callback_state.get_last_eval_criteria_values().items():
             print(f'{criteria_name}: {value:.3f}')
         print()

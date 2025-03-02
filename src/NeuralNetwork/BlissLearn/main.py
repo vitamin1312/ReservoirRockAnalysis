@@ -48,9 +48,12 @@ def my_mse(yb, outputs):
     return mse(yb.float(), outputs.float()).item()
 
 
-callbacks = [SegmentationMetricsCallback(num_classes=3,
-                                         common_metrics={'CrossEntropy': my_metric},
-                                         class_metrics={'MSE': my_mse}), PrintCriteriaCallback()]
+callbacks = [
+    SegmentationMetricsCallback(num_classes=3,
+                                common_metrics={'CrossEntropy': my_metric},
+                                class_metrics={'MSE': my_mse}),
+    PrintCriteriaCallback()
+]
 
 learner = BlissLearner(model,
                        criterion,
