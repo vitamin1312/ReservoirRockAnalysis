@@ -5,7 +5,7 @@ from BlissTypes import tensor_or_scaler
 class CallbackState:
     def __init__(self,
                  stop_training: bool = False
-                 ):
+                 ) -> None:
         self.stop_training = stop_training
 
         self.batch_train_loss = list()
@@ -19,11 +19,11 @@ class CallbackState:
         self.other_data = dict()
 
     @staticmethod
-    def _get_mean_value(values: tensor_or_scaler) -> tensor_or_scaler:
+    def _get_mean_value(values: list[tensor_or_scaler]) -> tensor_or_scaler:
         return (sum(values) / len(values)) if values else None
 
     @staticmethod
-    def _get_last_value(values: tensor_or_scaler) -> tensor_or_scaler:
+    def _get_last_value(values: list[tensor_or_scaler]) -> tensor_or_scaler:
         return values[-1] if values else None
 
     def _accumulate_batch_to_epoch(self,
@@ -51,19 +51,19 @@ class CallbackState:
             last_values[name] = self._get_last_value(values) if values else None
         return last_values
 
-    def clear_train_batch_criteria(self):
+    def clear_train_batch_criteria(self) -> None:
         self.batch_train_criteria = defaultdict(list)
 
-    def clear_eval_batch_criteria(self):
+    def clear_eval_batch_criteria(self) -> None:
         self.batch_eval_criteria = defaultdict(list)
 
-    def update_criteria(self, name: str, value: float, train: bool = True):
+    def update_criteria(self, name: str, value: float, train: bool = True) -> None:
         if train:
             self.batch_train_criteria[name].append(value)
         else:
             self.batch_eval_criteria[name].append(value)
 
-    def update_loss_values(self, value: float, train: bool = True):
+    def update_loss_values(self, value: float, train: bool = True) -> None:
         if train:
             self.batch_train_loss.append(value)
         else:

@@ -56,7 +56,7 @@ class SegmentationMetricsCallback(BlissCallback):
     def on_eval_batch_end(self,
                            yb: torch.Tensor,
                            outputs: torch.Tensor,
-                           callback_state,
+                           callback_state: CallbackState,
                            *args, **kwargs) -> None:
         metrics = self.on_batch_end(yb, outputs)
 
@@ -71,7 +71,7 @@ class SegmentationMetricsCallback(BlissCallback):
         callback_state.clear_train_batch_criteria()
 
     def on_eval_epoch_end(self,
-                     callback_state,
+                     callback_state: CallbackState,
                      *args, **kwargs) -> None:
         callback_state.accumulate_eval_batch_to_epoch()
         callback_state.clear_eval_batch_criteria()
@@ -82,19 +82,19 @@ class PrintCriteriaCallback(BlissCallback):
     def on_train_batch_end(self,
                      yb: torch.Tensor,
                      outputs: torch.Tensor,
-                     callback_state,
+                     callback_state: CallbackState,
                      *args, **kwargs) -> None:
         pass
 
     def on_eval_batch_end(self,
                      yb: torch.Tensor,
                      outputs: torch.Tensor,
-                     callback_state,
+                     callback_state: CallbackState,
                      *args, **kwargs) -> None:
         pass
 
     def on_train_epoch_end(self,
-                     callback_state,
+                     callback_state: CallbackState,
                      *args, **kwargs) -> None:
         print(f'loss_function: {callback_state.epoch_train_loss[-1]:.3f}')
         for criteria_name, value in callback_state.get_last_train_criteria_values().items():
@@ -102,7 +102,7 @@ class PrintCriteriaCallback(BlissCallback):
         print()
 
     def on_eval_epoch_end(self,
-                     callback_state,
+                     callback_state: CallbackState,
                      *args, **kwargs) -> None:
         print(f'loss_function: {callback_state.epoch_eval_loss[-1]:.3f}')
         for criteria_name, value in callback_state.get_last_eval_criteria_values().items():

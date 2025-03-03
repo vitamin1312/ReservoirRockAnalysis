@@ -1,5 +1,7 @@
 from BlissCallback import BlissSystemCallback
 
+
+# todo: add type for callback_state
 class LossCallback(BlissSystemCallback):
     def on_train_batch_end(self,
                            loss: float,

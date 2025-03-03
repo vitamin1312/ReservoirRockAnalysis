@@ -19,6 +19,7 @@ from BlissTypes import (criterion,
                         nullable_system_callbacks_list,
                         nullable_system_callbacks_getter)
 
+# todo: move to BlissLearner
 def get_system_callbacks() -> nullable_system_callbacks_list:
     return [LossCallback()]
 
@@ -39,7 +40,7 @@ class BlissLearner:
                  use_amp: bool = False,
                  *args,
                  **kwargs
-                 ):
+                 ) -> None:
         
         self.model = model
         self.loss_function = loss_function

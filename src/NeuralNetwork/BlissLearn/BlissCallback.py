@@ -1,7 +1,7 @@
 import torch
 from abc import ABC, abstractmethod
 
-
+# todo: add type to callback_state
 class BlissSystemCallback(ABC):
     @abstractmethod
     def on_train_batch_end(self,
