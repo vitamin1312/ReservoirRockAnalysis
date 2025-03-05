@@ -9,19 +9,16 @@ if is_notebook():
 else:
     from tqdm import tqdm
 
-from CallbackState import CallbackState
-from SystemBlissCallbacks import LossCallback
-from BlissTypes import (criterion,
-                        nullable_scheduler,
-                        optimizer_type,
-                        step_function,
-                        nullable_callbacks_list,
-                        nullable_system_callbacks_list,
-                        nullable_system_callbacks_getter)
+from .CallbackState import CallbackState
+from .BlissCallbacks.SystemCallbacks import LossCallback
 
-# todo: move to BlissLearner
-def get_system_callbacks() -> nullable_system_callbacks_list:
-    return [LossCallback()]
+from .BlissTypes.BlissCommonTypes import nullable_scheduler, optimizer_type
+from .BlissTypes.BlissFunctionTypes import criterion
+from .BlissTypes.LearnerTypes import (
+    nullable_system_callbacks_list,
+    nullable_callbacks_list,
+    step_function
+)
 
 
 class BlissLearner:
@@ -33,7 +30,6 @@ class BlissLearner:
                  train_dataloader: DataLoader,
                  test_dataloader: DataLoader,
                  callbacks: nullable_callbacks_list = None,
-                 system_callbacks_getter: nullable_system_callbacks_getter = get_system_callbacks,
 
                  # todo: add next fields using
                  scheduler: nullable_scheduler = None,
@@ -42,50 +38,50 @@ class BlissLearner:
                  **kwargs
                  ) -> None:
         
-        self.model = model
-        self.loss_function = loss_function
+        self._model = model
+        self._loss_function = loss_function
 
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
 
-        self.optimizer = optimizer_class(model.parameters(), **optimizer_kwargs)
+        self._optimizer = optimizer_class(model.parameters(), **optimizer_kwargs)
 
         self.callbacks = callbacks if callbacks else []
-        system_callbacks = system_callbacks_getter()
+        system_callbacks = self.get_system_callbacks()
         self.system_callbacks = system_callbacks if system_callbacks else []
 
-        self.callback_state = CallbackState()
+        self._callback_state = CallbackState()
 
     ################### Loss calculation ###################
-    def calc_loss_function(self, outputs: torch.Tensor, yb: torch.Tensor) -> torch.Tensor:
-        return self.loss_function(outputs, yb)
+    def _calc_loss_function(self, outputs: torch.Tensor, yb: torch.Tensor) -> torch.Tensor:
+        return self._loss_function(outputs, yb)
 
-    def calc_loss_with_grad(self, xb: torch.Tensor, yb: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        outputs = self.model(xb)
-        loss = self.calc_loss_function(outputs, yb)
+    def _calc_loss_with_grad(self, xb: torch.Tensor, yb: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        outputs = self._model(xb)
+        loss = self._calc_loss_function(outputs, yb)
         loss.backward()
         return loss, outputs
 
-    def calc_loss(self, xb: torch.Tensor, yb: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        outputs = self.model(xb)
-        loss = self.calc_loss_function(outputs, yb)
+    def _calc_loss(self, xb: torch.Tensor, yb: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        outputs = self._model(xb)
+        loss = self._calc_loss_function(outputs, yb)
         return loss, outputs
 
-    def train_step(self, xb: torch.Tensor, yb: torch.Tensor) -> float:
-        self.optimizer.zero_grad()
-        loss, outputs = self.calc_loss_with_grad(xb, yb)
-        self.optimizer.step()
+    def _train_step(self, xb: torch.Tensor, yb: torch.Tensor) -> float:
+        self._optimizer.zero_grad()
+        loss, outputs = self._calc_loss_with_grad(xb, yb)
+        self._optimizer.step()
         with torch.no_grad():
-            for callback in self.system_callbacks: callback.on_train_batch_end(loss.item(), self.callback_state)
-            for callback in self.callbacks: callback.on_train_batch_end(yb, outputs, self.callback_state)
+            for callback in self.system_callbacks: callback.on_train_batch_end(loss.item(), self._callback_state)
+            for callback in self.callbacks: callback.on_train_batch_end(yb, outputs, self._callback_state)
 
         return loss.item()
 
-    def validate_step(self, xb: torch.Tensor, yb: torch.Tensor) -> float:
+    def _validate_step(self, xb: torch.Tensor, yb: torch.Tensor) -> float:
         with torch.no_grad():
-            loss, outputs = self.calc_loss(xb, yb)
-            for callback in self.system_callbacks: callback.on_eval_batch_end(loss.item(), self.callback_state)
-            for callback in self.callbacks: callback.on_eval_batch_end(yb, outputs, self.callback_state)
+            loss, outputs = self._calc_loss(xb, yb)
+            for callback in self.system_callbacks: callback.on_eval_batch_end(loss.item(), self._callback_state)
+            for callback in self.callbacks: callback.on_eval_batch_end(yb, outputs, self._callback_state)
 
         return loss.item()
 
@@ -96,20 +92,20 @@ class BlissLearner:
             print(f'training', flush=True)
             sys.stdout.flush()
 
-            self.do_epoch(self.train_step, self.train_dataloader)
-            for callback in self.system_callbacks: callback.on_train_epoch_end(self.callback_state)
-            for callback in self.callbacks: callback.on_train_epoch_end(self.callback_state)
+            self._do_epoch(self._train_step, self.train_dataloader)
+            for callback in self.system_callbacks: callback.on_train_epoch_end(self._callback_state)
+            for callback in self.callbacks: callback.on_train_epoch_end(self._callback_state)
 
             print(f'validating', flush=True)
             sys.stdout.flush()
 
-            self.do_epoch(self.validate_step, self.test_dataloader)
-            for callback in self.system_callbacks: callback.on_eval_epoch_end(self.callback_state)
-            for callback in self.callbacks: callback.on_eval_epoch_end(self.callback_state)
+            self._do_epoch(self._validate_step, self.test_dataloader)
+            for callback in self.system_callbacks: callback.on_eval_epoch_end(self._callback_state)
+            for callback in self.callbacks: callback.on_eval_epoch_end(self._callback_state)
 
     # https://stackoverflow.com/questions/64727187/tqdm-multiple-progress-bars-with-nested-for-loops-in-pycharm
     @staticmethod
-    def do_epoch(batch_processing: step_function, dataloader: DataLoader) -> None:
+    def _do_epoch(batch_processing: step_function, dataloader: DataLoader) -> None:
         for batch_number, (xb, yb) in tqdm(
                 enumerate(dataloader),
                 position=1,
@@ -120,3 +116,8 @@ class BlissLearner:
         ):
 
             batch_processing(xb, yb)
+    
+    ################### Class utils ###################
+    @staticmethod
+    def get_system_callbacks() -> nullable_system_callbacks_list:
+        return [LossCallback()]

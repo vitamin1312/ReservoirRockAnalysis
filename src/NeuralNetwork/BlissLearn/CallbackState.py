@@ -1,5 +1,4 @@
 from collections import defaultdict
-from BlissTypes import tensor_or_scaler
 
 
 class CallbackState:
@@ -19,11 +18,11 @@ class CallbackState:
         self.other_data = dict()
 
     @staticmethod
-    def _get_mean_value(values: list[tensor_or_scaler]) -> tensor_or_scaler:
+    def _get_mean_value(values: list[float]) -> float:
         return (sum(values) / len(values)) if values else None
 
     @staticmethod
-    def _get_last_value(values: list[tensor_or_scaler]) -> tensor_or_scaler:
+    def _get_last_value(values: list[float]) -> float:
         return values[-1] if values else None
 
     def _accumulate_batch_to_epoch(self,
@@ -39,13 +38,13 @@ class CallbackState:
     def accumulate_eval_batch_to_epoch(self) -> None:
         self._accumulate_batch_to_epoch(self.batch_eval_criteria, self.epoch_eval_criteria)
 
-    def get_last_train_criteria_values(self) -> dict[str, tensor_or_scaler]:
+    def get_last_train_criteria_values(self) -> dict[str, float]:
         last_values = defaultdict(list)
         for name, values in self.epoch_train_criteria.items():
             last_values[name] = self._get_last_value(values) if values else None
         return last_values
 
-    def get_last_eval_criteria_values(self) -> dict[str, tensor_or_scaler]:
+    def get_last_eval_criteria_values(self) -> dict[str, float]:
         last_values = defaultdict(list)
         for name, values in self.epoch_eval_criteria.items():
             last_values[name] = self._get_last_value(values) if values else None
@@ -70,8 +69,8 @@ class CallbackState:
             self.batch_eval_loss.append(value)
 
     def _accumulate_batch_loss_to_epoch(self,
-                                        batch_loss: list[tensor_or_scaler],
-                                        epoch_loss: list[tensor_or_scaler]
+                                        batch_loss: list[float],
+                                        epoch_loss: list[float]
                                         ) -> None:
         epoch_loss.append(self._get_mean_value(batch_loss))
 

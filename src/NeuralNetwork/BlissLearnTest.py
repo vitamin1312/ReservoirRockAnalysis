@@ -3,8 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, TensorDataset, random_split
-from BlissLearner import BlissLearner
-from CustomBlissCallbacks import SegmentationMetricsCallback, PrintCriteriaCallback
+from BlissLearn import BlissLearner
+from BlissLearn.BlissCallbacks.Callbacks import SegmentationMetricsCallback, PrintCriteriaCallback
 
 torch.manual_seed(42)
 

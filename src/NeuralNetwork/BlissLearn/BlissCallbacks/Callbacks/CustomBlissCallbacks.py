@@ -1,11 +1,11 @@
 import torch
 
-from BlissCallback import BlissCallback
-from BlissTypes import nullable_criterion_dict
-from CallbackState import CallbackState
+from .BlissCallback import BlissCallback
+from ...CallbackState import CallbackState
+from .CallbackTypes import nullable_criterion_dict
 
 
-################### Classification Callback ###################
+################### Classification or segmentation Callback ###################
 class SegmentationMetricsCallback(BlissCallback):
     def __init__(
             self,
@@ -18,13 +18,13 @@ class SegmentationMetricsCallback(BlissCallback):
         self.common_metrics = common_metrics if common_metrics else dict()
         self.class_metrics = class_metrics if class_metrics else dict()
 
-    def calculate_common_metrics(self, yb: torch.Tensor, outputs: torch.Tensor) -> dict[str, float]:
+    def _calculate_common_metrics(self, yb: torch.Tensor, outputs: torch.Tensor) -> dict[str, float]:
         common_metrics_values = dict()
         for name, metric in self.common_metrics.items():
             common_metrics_values[name] = metric(yb, outputs)
         return common_metrics_values
 
-    def calculate_class_metrics(self, yb: torch.Tensor, outputs: torch.Tensor) -> dict[str, float]:
+    def _calculate_class_metrics(self, yb: torch.Tensor, outputs: torch.Tensor) -> dict[str, float]:
         class_metrics_values = dict()
         for name, metric in self.class_metrics.items():
             for class_num in range(self.num_classes):
@@ -38,8 +38,8 @@ class SegmentationMetricsCallback(BlissCallback):
                      yb: torch.Tensor,
                      outputs: torch.Tensor
                      ) -> dict[str, float]:
-        common_metrics = self.calculate_common_metrics(yb, outputs)
-        class_metrics = self.calculate_class_metrics(yb, outputs)
+        common_metrics = self._calculate_common_metrics(yb, outputs)
+        class_metrics = self._calculate_class_metrics(yb, outputs)
 
         return common_metrics | class_metrics
 
@@ -47,6 +47,7 @@ class SegmentationMetricsCallback(BlissCallback):
                            yb: torch.Tensor,
                            outputs: torch.Tensor,
                            callback_state,
+                           # 52
                            *args, **kwargs) -> None:
         metrics = self.on_batch_end(yb, outputs)
 
