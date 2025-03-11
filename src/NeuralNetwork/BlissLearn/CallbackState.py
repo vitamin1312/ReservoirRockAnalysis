@@ -68,12 +68,6 @@ class CallbackState:
         else:
             self.batch_eval_loss.append(value)
 
-    def _accumulate_batch_loss_to_epoch(self,
-                                        batch_loss: list[float],
-                                        epoch_loss: list[float]
-                                        ) -> None:
-        epoch_loss.append(self._get_mean_value(batch_loss))
-
     def accumulate_train_loss_batch_to_epoch(self) -> None:
         self._accumulate_batch_loss_to_epoch(self.batch_train_loss, self.epoch_train_loss)
 
@@ -85,3 +79,9 @@ class CallbackState:
 
     def clear_eval_loss_batch(self) -> None:
         self.batch_eval_loss = list()
+
+    def _accumulate_batch_loss_to_epoch(self,
+                                        batch_loss: list[float],
+                                        epoch_loss: list[float]
+                                        ) -> None:
+        epoch_loss.append(self._get_mean_value(batch_loss))
