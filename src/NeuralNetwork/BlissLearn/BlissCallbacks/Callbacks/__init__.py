@@ -1,5 +1,6 @@
 from .BlissCallback import BlissCallback
 from .CustomBlissCallbacks import (
     SegmentationMetricsCallback,
-    PrintCriteriaCallback
+    PrintCriteriaCallback,
+    ColorizationMetricsCallback,
 )

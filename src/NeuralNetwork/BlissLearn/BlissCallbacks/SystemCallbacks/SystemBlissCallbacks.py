@@ -1,20 +1,23 @@
 from .BlissSystemCallback import BlissSystemCallback
 
 from ...CallbackState import CallbackState
+from ...DTO import BatchResult
 
 
 class LossCallback(BlissSystemCallback):
     def on_train_batch_end(self,
-                           loss: float,
+                           batch_result: BatchResult,
                            callback_state: CallbackState,
                            *args, **kwargs) -> None:
-        callback_state.update_loss_values(loss, train=True)
+        for loss_name, loss_value in batch_result.losses.items():
+            callback_state.update_loss_values(loss_name, loss_value, train=True)
 
     def on_eval_batch_end(self,
-                          loss: float,
+                          batch_result: BatchResult,
                           callback_state: CallbackState,
                           *args, **kwargs) -> None:
-        callback_state.update_loss_values(loss, train=False)
+        for loss_name, loss_value in batch_result.losses.items():
+            callback_state.update_loss_values(loss_name, loss_value, train=False)
 
     def on_train_epoch_end(self,
                            callback_state: CallbackState,

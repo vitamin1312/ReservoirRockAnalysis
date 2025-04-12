@@ -3,12 +3,11 @@ import torch.nn as nn
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader, TensorDataset, random_split
-from BlissLearn import BlissLearner
+from BlissLearn.BlissLearner import BlissLearner
 from BlissLearn.BlissCallbacks.Callbacks import SegmentationMetricsCallback, PrintCriteriaCallback
 
 torch.manual_seed(42)
 
-# Генерируем более сложные данные
 X = torch.randn(500, 2)
 y = torch.tensor((X[:, 0]**2 + X[:, 1]**2 > 1).long() + (X[:, 0] + X[:, 1] > 1).long())
 
@@ -20,7 +19,6 @@ train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-# Усложняем модель
 class MultiClassClassifier(nn.Module):
     def __init__(self):
         super().__init__()
@@ -38,7 +36,7 @@ class MultiClassClassifier(nn.Module):
 
 model = MultiClassClassifier()
 criterion = nn.CrossEntropyLoss()
-metric = nn.CrossEntropyLoss()  # Будем логировать ту же метрику, что и loss
+metric = nn.CrossEntropyLoss()
 mse = nn.MSELoss()
 
 def my_metric(yb, outputs):
@@ -57,14 +55,14 @@ callbacks = [
 
 learner = BlissLearner(model,
                        criterion,
-                       optim.Adam,  # Adam лучше подходит для нелинейных задач
+                       optim.Adam,
                        {'lr': 0.01},
                        train_loader,
                        test_loader,
                        callbacks
                        )
 
-learner.fit(10)  # Увеличим количество эпох
+learner.fit(10)
 
 # Визуализация границы принятия решений
 plt.figure(figsize=(8, 6))
