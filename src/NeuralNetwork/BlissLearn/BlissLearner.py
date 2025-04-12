@@ -30,6 +30,7 @@ class _BaseBlissLearner(ABC):
                  train_dataloader: DataLoader,
                  test_dataloader: DataLoader,
                  callbacks: nullable_callbacks_list = None,
+                 batches_to_validate: int | None = None, # Early validating
 
                  # todo: add next fields using
                  scheduler: nullable_scheduler = None,
@@ -40,34 +41,62 @@ class _BaseBlissLearner(ABC):
         self.train_dataloader = train_dataloader
         self.test_dataloader = test_dataloader
 
-        self.callbacks = callbacks if callbacks else []
+        self.callbacks = callbacks or []
         system_callbacks = self.get_system_callbacks()
-        self.system_callbacks = system_callbacks if system_callbacks else []
+        self.system_callbacks = system_callbacks or []
+
+        if batches_to_validate is not None and batches_to_validate > 0:
+            self.batches_to_validate = batches_to_validate
+        else:
+            self.batches_to_validate = None
+
+        self.use_early_validation = bool(self.batches_to_validate)
+
 
         self._callback_state = CallbackState()
 
     ################### Train loop ###################
     def fit(self, number_of_epochs: int = 1) -> None:
         for epoch in range(1, number_of_epochs + 1):
+
             print(f'epoch: {epoch}', flush=True)
-            print(f'training', flush=True)
-            sys.stdout.flush()
+            self._do_train_epoch()
+            self._do_validate_epoch()
 
-            self._do_epoch(self._full_train_step, self.train_dataloader)
-            for callback in self.system_callbacks: callback.on_train_epoch_end(self._callback_state)
-            for callback in self.callbacks: callback.on_train_epoch_end(self._callback_state)
-
+    def _do_train_epoch(self):
+        print(f'training', flush=True)
+        sys.stdout.flush()
+        self._do_epoch(self._full_train_step, self.train_dataloader, train=True)
+    
+    def _do_validate_epoch(self):
+        if not self.use_early_validation:
             print(f'validating', flush=True)
             sys.stdout.flush()
+            self._do_epoch(self._full_validate_step, self.test_dataloader, train=False)
 
-            self._do_epoch(self._full_validate_step, self.test_dataloader)
+    def _validate_on_the_fly(self):
+        for xb, yb in self.test_dataloader:
+            self._full_validate_step(xb, yb)
+
+    def _early_validate(self):
+        print('train info')
+        self._use_epoch_callbacks(train=True)
+        print('eval info')
+        self._validate_on_the_fly()
+        self._use_epoch_callbacks(train=False)
+
+    def _use_epoch_callbacks(self, train=True):
+        if train:
+            for callback in self.system_callbacks: callback.on_train_epoch_end(self._callback_state)
+            for callback in self.callbacks: callback.on_train_epoch_end(self._callback_state)
+        else:
             for callback in self.system_callbacks: callback.on_eval_epoch_end(self._callback_state)
             for callback in self.callbacks: callback.on_eval_epoch_end(self._callback_state)
 
     # https://stackoverflow.com/questions/64727187/tqdm-multiple-progress-bars-with-nested-for-loops-in-pycharm
-    @staticmethod
-    def _do_epoch(batch_processing: step_function, dataloader: DataLoader) -> None:
-        for batch_number, (xb, yb) in tqdm(
+    def _do_epoch(self, batch_processing: step_function, dataloader: DataLoader, train=True) -> None:
+        virtual_batch = 0
+        for _, (xb, yb) in tqdm(
                 enumerate(dataloader),
                 position=1,
                 desc="batches",
@@ -75,8 +104,15 @@ class _BaseBlissLearner(ABC):
                 ncols=1200,
                 total=len(dataloader)
         ):
-
             batch_processing(xb, yb)
+
+            if train and self.use_early_validation:
+                virtual_batch += 1
+                if virtual_batch >= self.batches_to_validate:
+                    virtual_batch = 0
+                    self._early_validate()
+
+        self._use_epoch_callbacks(train)
 
     def _full_train_step(self, xb: torch.Tensor, yb: torch.Tensor) -> None:
         batch_result = self.train_step(xb, yb)
@@ -113,6 +149,7 @@ class BlissLearner(_BaseBlissLearner):
                  train_dataloader: DataLoader,
                  test_dataloader: DataLoader,
                  callbacks: nullable_callbacks_list = None,
+                 batches_to_validate: int | None = None,
 
                  # todo: add next fields using
                  scheduler: nullable_scheduler = None,
@@ -123,9 +160,10 @@ class BlissLearner(_BaseBlissLearner):
                  ) -> None:
         
         super().__init__(
-            train_dataloader,
-            test_dataloader,
-            callbacks,
+            train_dataloader=train_dataloader,
+            test_dataloader=test_dataloader,
+            callbacks=callbacks,
+            batches_to_validate=batches_to_validate,
             *args,
             **kwargs
         )
@@ -247,6 +285,7 @@ class BlissColorizationLearner(_BaseBlissLearner):
         generator_loss = fake_loss + self._alpha * self._generator_loss_function(y_fake, yb)
         generator_loss.backward()
         self._generator_optimizer.step()
+        torch.cuda.empty_cache()
 
         return ColorizationBatchResult.from_losses_dict(
             losses={'generator_loss': generator_loss, 'discriminator_loss': discriminator_loss},
@@ -281,6 +320,7 @@ class BlissColorizationLearner(_BaseBlissLearner):
 
         fake_loss = self._discriminator_loss_function(y_fake_preds, y_fake_labels)
         generator_loss = fake_loss + self._alpha * self._generator_loss_function(y_fake, yb)
+        torch.cuda.empty_cache()
 
         return ColorizationBatchResult.from_losses_dict(
             losses={'generator_loss': generator_loss, 'discriminator_loss': discriminator_loss},

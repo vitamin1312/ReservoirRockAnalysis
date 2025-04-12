@@ -16,8 +16,8 @@ train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False)
 
 class MultiClassClassifier(nn.Module):
     def __init__(self):
@@ -59,10 +59,18 @@ learner = BlissLearner(model,
                        {'lr': 0.01},
                        train_loader,
                        test_loader,
-                       callbacks
+                       callbacks,
+                       batches_to_validate=None
                        )
 
 learner.fit(10)
+
+print('epoch')
+print(len(learner._callback_state.epoch_train_loss['loss']))
+print(len(learner._callback_state.epoch_eval_loss['loss']))
+print('batch')
+print(len(learner._callback_state.batch_train_loss['loss']))
+print(len(learner._callback_state.batch_eval_loss['loss']))
 
 # Визуализация границы принятия решений
 plt.figure(figsize=(8, 6))
