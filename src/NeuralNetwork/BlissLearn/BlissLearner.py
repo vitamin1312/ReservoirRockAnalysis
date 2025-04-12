@@ -75,10 +75,18 @@ class _BaseBlissLearner(ABC):
             self._do_epoch(self._full_validate_step, self.test_dataloader, train=False)
 
     def _validate_on_the_fly(self):
-        for xb, yb in self.test_dataloader:
+        for xb, yb in tqdm(
+                self.test_dataloader,
+                position=1,
+                desc="batches",
+                leave=False,
+                ncols=1200,
+                total=len(self.test_dataloader)):
+
             self._full_validate_step(xb, yb)
 
     def _early_validate(self):
+        print('early validation')
         print('train info')
         self._use_epoch_callbacks(train=True)
         print('eval info')
@@ -96,6 +104,7 @@ class _BaseBlissLearner(ABC):
     # https://stackoverflow.com/questions/64727187/tqdm-multiple-progress-bars-with-nested-for-loops-in-pycharm
     def _do_epoch(self, batch_processing: step_function, dataloader: DataLoader, train=True) -> None:
         virtual_batch = 0
+        validated = False
         for _, (xb, yb) in tqdm(
                 enumerate(dataloader),
                 position=1,
@@ -108,11 +117,15 @@ class _BaseBlissLearner(ABC):
 
             if train and self.use_early_validation:
                 virtual_batch += 1
+                validated = False
                 if virtual_batch >= self.batches_to_validate:
                     virtual_batch = 0
                     self._early_validate()
-
-        self._use_epoch_callbacks(train)
+                    validated = True
+        if self.use_early_validation and not validated:
+            self._early_validate()
+        else:
+            self._use_epoch_callbacks(train)
 
     def _full_train_step(self, xb: torch.Tensor, yb: torch.Tensor) -> None:
         batch_result = self.train_step(xb, yb)
@@ -223,6 +236,7 @@ class BlissColorizationLearner(_BaseBlissLearner):
                  test_dataloader: DataLoader,
                  alpha: float,
                  callbacks: nullable_callbacks_list = None,
+                 batches_to_validate: int | None = None,
 
                  # todo: add next fields using
                  scheduler: nullable_scheduler = None,
@@ -232,9 +246,10 @@ class BlissColorizationLearner(_BaseBlissLearner):
                  ) -> None:
 
         super().__init__(
-            train_dataloader,
-            test_dataloader,
-            callbacks,
+            train_dataloader=train_dataloader,
+            test_dataloader=test_dataloader,
+            callbacks=callbacks,
+            batches_to_validate=batches_to_validate,
             *args,
             **kwargs
         )

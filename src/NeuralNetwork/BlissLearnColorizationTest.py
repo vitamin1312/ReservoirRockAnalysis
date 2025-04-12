@@ -162,7 +162,8 @@ learner = BlissColorizationLearner(
     train_dataloader=train_loader,
     test_dataloader=test_loader,
     callbacks=callbacks,
-    alpha=0.1
+    alpha=0.1,
+    batches_to_validate=3
 )
 
 # 6. Обучение
