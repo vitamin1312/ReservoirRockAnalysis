@@ -14,3 +14,6 @@ def calculate_iou(outputs: torch.Tensor, labels: torch.Tensor):
     iou = (intersection + SMOOTH) / (union + SMOOTH)  # We smooth our devision to avoid 0/0
     
     return iou.mean().item()
+
+def accuracy(y_preds: torch.Tensor, y_true: torch.Tensor):
+    return (y_preds == y_true).to(torch.float32).mean()
