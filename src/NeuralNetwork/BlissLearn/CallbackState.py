@@ -24,6 +24,9 @@ class CallbackState:
     @staticmethod
     def _get_mean_value(values: list[float]) -> float:
         return (sum(values) / len(values)) if values else None
+    
+    def _get_all_criteria(self):
+        return {'train info': self.epoch_train_loss | self.epoch_train_criteria, 'eval info': self.epoch_eval_loss | self.epoch_eval_criteria}
 
     @staticmethod
     def _get_last_value(values: list[float]) -> float:

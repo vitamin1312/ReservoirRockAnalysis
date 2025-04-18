@@ -72,6 +72,8 @@ print('batch')
 print(len(learner._callback_state.batch_train_loss['loss']))
 print(len(learner._callback_state.batch_eval_loss['loss']))
 
+print(learner.get_train_info())
+
 # Визуализация границы принятия решений
 plt.figure(figsize=(8, 6))
 xx, yy = torch.meshgrid(torch.linspace(-3, 3, 100), torch.linspace(-3, 3, 100))

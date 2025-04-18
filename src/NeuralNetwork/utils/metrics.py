@@ -8,12 +8,17 @@ def calculate_iou(outputs: torch.Tensor, labels: torch.Tensor):
     # be with the BATCH x 1 x H x W shape
     # outputs = outputs.squeeze(1)  # BATCH x 1 x H x W => BATCH x H x W
     
-    intersection = (outputs & labels).float().sum((1, 2))  # Will be zero if Truth=0 or Prediction=0
-    union = (outputs | labels).float().sum((1, 2))         # Will be zzero if both are 0
+    if outputs.sum() == 0:
+        return 0.0  # Если нет предсказаний, IoU равен 0
     
-    iou = (intersection + SMOOTH) / (union + SMOOTH)  # We smooth our devision to avoid 0/0
+    # Логические операции для нахождения пересечения и объединения
+    intersection = torch.logical_and(outputs, labels).float().sum((1, 2))  # Пересечение
+    union = torch.logical_or(outputs, labels).float().sum((1, 2))         # Объединение
     
-    return iou.mean().item()
+    # Расчет IoU с добавлением "сглаживающего" значения для избегания деления на ноль
+    iou = (intersection + SMOOTH) / (union + SMOOTH)
+    
+    return iou.mean().item()  # Возвращаем средний IoU по батчу
 
 def accuracy(y_preds: torch.Tensor, y_true: torch.Tensor):
-    return (y_preds == y_true).to(torch.float32).mean()
+    return (y_preds == y_true).float().mean().item()

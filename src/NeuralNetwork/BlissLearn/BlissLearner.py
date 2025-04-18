@@ -151,7 +151,9 @@ class _BaseBlissLearner(ABC):
     @staticmethod
     def get_system_callbacks() -> nullable_system_callbacks_list:
         return [LossCallback()]
-
+    
+    def get_train_info(self):
+        return self._callback_state._get_all_criteria()
 
 class BlissLearner(_BaseBlissLearner):
     def __init__(self,
