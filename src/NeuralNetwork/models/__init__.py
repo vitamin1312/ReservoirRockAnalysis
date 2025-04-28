@@ -1,1 +1,0 @@
-from HrSegNet import HrSegNetB64

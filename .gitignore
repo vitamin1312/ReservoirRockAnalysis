@@ -6,6 +6,9 @@ __pycache__/
 # App config
 appsettings.json
 
+# Jet Brains
+.idea
+
 # C extensions
 *.so
 
@@ -23,6 +26,9 @@ data
 # neural network
 *.pkl
 *.onnx
+
+# logging of manual labor
+logs.txt
 
 # Distribution / packaging
 .Python
