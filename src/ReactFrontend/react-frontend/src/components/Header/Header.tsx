@@ -35,7 +35,7 @@ const Header: React.FC = () => {
                         <div className="flex items-center justify-between py-3 md:py-3 md:block">
                             {/* logo section */}
                             <Link to="/" className='text-3xl text-gray-900 font-semibold tracking-[0.1rem]'>
-                            Темплея
+                            DeepCore 
                             </Link>
                             {/* buttons section */}
                             <div className='md:hidden'>
