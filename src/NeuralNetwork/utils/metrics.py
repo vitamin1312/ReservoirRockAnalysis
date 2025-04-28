@@ -7,6 +7,9 @@ def calculate_iou(outputs: torch.Tensor, labels: torch.Tensor):
     # But if you are passing output from UNet or something it will most probably
     # be with the BATCH x 1 x H x W shape
     # outputs = outputs.squeeze(1)  # BATCH x 1 x H x W => BATCH x H x W
+
+    # outputs_sum = outputs.sum()
+    # labels_sum = labels.sum()
     
     if outputs.sum() == 0:
         return 0.0  # Если нет предсказаний, IoU равен 0

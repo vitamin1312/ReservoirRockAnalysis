@@ -27,6 +27,9 @@ data
 *.pkl
 *.onnx
 
+# logging of manual labor
+logs.txt
+
 # Distribution / packaging
 .Python
 build/
