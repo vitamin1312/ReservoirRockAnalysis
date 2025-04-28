@@ -1,0 +1,3 @@
+[submodule "src/NeuralNetwork/BlissLearn"]
+	path = src/NeuralNetwork/BlissLearn
+	url = https://github.com/vitamin1312/BlissLearn.git
