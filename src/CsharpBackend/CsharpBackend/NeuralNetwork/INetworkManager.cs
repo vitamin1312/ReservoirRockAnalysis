@@ -2,6 +2,6 @@
 {
     public interface INetworkManager
     {
-        void Predict(string pathToImage, string pathToTarget);
+        Task Predict(string pathToImage, string pathToTarget);
     }
 }
