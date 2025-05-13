@@ -8,7 +8,7 @@ namespace CsharpBackend.Utils
         static public string SaveMat(Mat image)
         {
             var tempFiles = new TempFileCollection();
-            string file = tempFiles.AddExtension("jpg");
+            string file = tempFiles.AddExtension("png");
             image.Save(file);
             return file;
         }

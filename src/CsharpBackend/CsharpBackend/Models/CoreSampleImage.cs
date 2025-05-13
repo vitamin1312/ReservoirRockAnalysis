@@ -11,7 +11,7 @@ namespace CsharpBackend.Models
         public int Id { get; set; }
 
         [JsonIgnore]
-        public string PathToImage { get; set; }
+        public string? PathToImage { get; set; }
 
         [JsonIgnore]
         public string? PathToMask { get; set; }
@@ -24,13 +24,29 @@ namespace CsharpBackend.Models
 
         public CoreSampleImage() { }
 
-        public CoreSampleImage(string pathToRoot)
+
+        public static CoreSampleImage WithImage(string pathToRoot, string extension)
         {
-            PathToImage = Path.Combine(
-                pathToRoot,
-                @"ImageFiles",
-                $"{Guid.NewGuid()}.jpg"
-                );
+            return new CoreSampleImage
+            {
+                PathToImage = Path.Combine(
+                    pathToRoot,
+                    "ImageFiles",
+                    $"{Guid.NewGuid()}{extension}"
+                )
+            };
+        }
+
+        public static CoreSampleImage WithMask(string pathToRoot, string extension)
+        {
+            return new CoreSampleImage
+            {
+                PathToMask = Path.Combine(
+                              pathToRoot,
+                              "ImageFiles",
+                              $"{Guid.NewGuid()}{extension}"
+                          )
+            };
         }
 
         public string GenerateMaskPath(string pathToRoot)

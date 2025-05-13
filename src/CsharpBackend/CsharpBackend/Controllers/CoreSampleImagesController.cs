@@ -32,24 +32,33 @@ namespace CsharpBackend
             _config = config.Value;
         }
 
-        [HttpPost]
-        [Route("upload")]
-        async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
-            [FromForm] ImageInfoDTO imageInfoDTO)
+        public ActionResult? ChechImageFile(IFormFile file)
         {
-
             if (file.Length > MaxFileLength)
                 return StatusCode(StatusCodes.Status413PayloadTooLarge,
                     new { message = "File is too large" });
 
-            if (file.ContentType != "image/jpeg" && file.ContentType != "image/png")
+            if (file.ContentType != "image/png")
                 return StatusCode(StatusCodes.Status415UnsupportedMediaType,
                     new { message = "Unsupported media type" });
 
             if (file == null)
                 return NoContent();
 
-            var coreSampleImage = new CoreSampleImage(_config.PathToWWWROOT);
+            return null;
+        }
+
+        [HttpPost]
+        [Route("upload")]
+        async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
+            [FromForm] ImageInfoDTO imageInfoDTO)
+        {
+
+            var validation_result = ChechImageFile(file);
+            if (validation_result != null)
+                return validation_result;
+
+            var coreSampleImage = CoreSampleImage.WithImage(_config.PathToWWWROOT, Path.GetExtension(file.FileName));
 
             using (var stream = new FileStream(coreSampleImage.PathToImage, FileMode.Create))
             {
@@ -66,6 +75,56 @@ namespace CsharpBackend
             await repository.Save();
             return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
             
+        }
+
+        [HttpPost]
+        [Route("uploadmask")]
+        async public Task<ActionResult<CoreSampleImage>> UploadMask(IFormFile file, [FromForm] ImageInfoDTO imageInfoDTO)
+        {
+            var validation_result = ChechImageFile(file);
+            if (validation_result != null)
+                return validation_result;
+
+            var coreSampleImage = CoreSampleImage.WithMask(_config.PathToWWWROOT, Path.GetExtension(file.FileName));
+
+            using (var stream = new FileStream(coreSampleImage.PathToMask, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imageInfo = new ImageInfo(imageInfoDTO);
+
+            checkFieldInInfo(imageInfo);
+
+            coreSampleImage.ImageInfo = imageInfo;
+            await repository.CreateImage(coreSampleImage);
+            await repository.Save();
+            return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
+        }
+
+        [HttpPost]
+        [Route("uploadimagemask")]
+        async public Task<ActionResult<CoreSampleImage>> UploadImageMask(IFormFile file, [FromForm] ImageInfoDTO imageInfoDTO)
+        {
+            var validation_result = ChechImageFile(file);
+            if (validation_result != null)
+                return validation_result;
+
+            var coreSampleImage = CoreSampleImage.WithMask(_config.PathToWWWROOT, Path.GetExtension(file.FileName));
+
+            using (var stream = new FileStream(coreSampleImage.PathToMask, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imageInfo = new ImageInfo(imageInfoDTO);
+
+            checkFieldInInfo(imageInfo);
+
+            coreSampleImage.ImageInfo = imageInfo;
+            await repository.CreateImage(coreSampleImage);
+            await repository.Save();
+            return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
         }
 
         [HttpGet]
@@ -117,10 +176,28 @@ namespace CsharpBackend
             if (coreSampleImage == null)
                 return NotFound();
 
-            return PhysicalFile(coreSampleImage.PathToImage, "image/jpeg");
+            if (coreSampleImage.PathToImage == null)
+                return NotFound("There is no image for this item");
+
+            return PhysicalFile(coreSampleImage.PathToImage, "image/png");
+        }
+
+        [HttpGet("getimagefilethumb/{id}")]
+        public async Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageFileThumb(int id, int height)
+        {
+            var coreSampleImage = await repository.GetImage(id);
+
+            if (coreSampleImage == null)
+                return NotFound($"There is no item with id: {id}");
+
+            if (coreSampleImage.PathToImage == null)
+                return NotFound("There is no image for this item");
+
+            var thumbImage = DataConverter.ThumbImage(coreSampleImage.GetImageMat(), height);
 
 
-
+            var file = TmpFiles.SaveMat(thumbImage);
+            return PhysicalFile(file, "image/png");
         }
 
         [HttpGet("getmaskfile/{id}")]
@@ -128,8 +205,11 @@ namespace CsharpBackend
         {
             var coreSampleImage = await repository.GetImage(id);
 
-            if (coreSampleImage == null || coreSampleImage.PathToMask == null)
-                return NotFound();
+            if (coreSampleImage == null)
+                return NotFound($"There is no item with id: {id}");
+
+            if (coreSampleImage.PathToMask == null)
+                return NotFound("There is no mask for this item");
 
             return PhysicalFile(coreSampleImage.PathToMask, "image/png");
         }
@@ -141,15 +221,15 @@ namespace CsharpBackend
             var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
-                return NotFound();
+                return NotFound($"There is no item with id: {id}");
 
             var maskImage = coreSampleImage.GetMaskImageMat();
 
             if (maskImage == null)
-                return NotFound();
+                return NotFound($"There is no item mask for this item");
 
             var file = TmpFiles.SaveMat(maskImage);
-            return PhysicalFile(file, "image/jpeg");
+            return PhysicalFile(file, "image/png");
         }
 
         [HttpGet("getimagewithmaskfile/{id}")]
@@ -158,15 +238,19 @@ namespace CsharpBackend
             var coreSampleImage = await repository.GetImage(id);
 
             if (coreSampleImage == null)
-                return NotFound();
+                return NotFound($"There is no item with id: {id}");
+
+            if (coreSampleImage.PathToImage == null)
+                return NotFound($"There is image for this item");
+
+            if (coreSampleImage.PathToMask == null)
+                return NotFound($"There is no mask for this item");
 
             var imageWithMask = coreSampleImage.GetImageWithMaskMat();
 
-            if (imageWithMask == null)
-                return NotFound();
 
             var file = TmpFiles.SaveMat(imageWithMask);
-            return PhysicalFile(file, "image/jpeg");
+            return PhysicalFile(file, "image/png");
         }
 
         [HttpGet("predict/{id}")]
@@ -176,13 +260,17 @@ namespace CsharpBackend
 
             if (coreSampleImage == null)
             {
-                return NotFound();
+                return NotFound($"There is no item with id: {id}");
             }
-            
-            var pathToMask = coreSampleImage.GenerateMaskPath(_config.PathToWWWROOT);
 
-            _networkManager.Predict(coreSampleImage.PathToImage, pathToMask);
-            coreSampleImage.PathToMask = pathToMask;
+            if (coreSampleImage.PathToImage == null)
+            {
+                return NotFound($"There is no image for this item");
+            }
+
+            coreSampleImage.PathToMask = coreSampleImage.GenerateMaskPath(_config.PathToWWWROOT);
+
+            _networkManager.Predict(coreSampleImage.PathToImage, coreSampleImage.PathToMask);
 
             repository.UpdateImage(coreSampleImage);
 
