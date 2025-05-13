@@ -44,15 +44,17 @@ namespace CsharpBackend
             var poreColorsJson = File.ReadAllText(appConfig.PathToPoreColors);
             var poreColors = JsonConvert.DeserializeObject<PoreColors>(poreColorsJson);
 
+            if (poreClasses == null || poreColors == null)
+                throw new InvalidOperationException("Error while loading metadata (pore colors and pore classes)");
 
             DataConverter.Init(poreClasses, poreColors);
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
                         options.RequireHttpsMetadata = true;
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
-
                             ValidateIssuer = true,
                             ValidIssuer = AuthOptions.Issuer,
                             ValidateAudience = true,
@@ -62,9 +64,6 @@ namespace CsharpBackend
                             ValidateIssuerSigningKey = true,
                         };
                     });
-
-
-
 
             var app = builder.Build();
             //app.UseHttpsRedirection();
@@ -82,8 +81,6 @@ namespace CsharpBackend
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            
           
             app.UseAuthentication();
             app.UseAuthorization();

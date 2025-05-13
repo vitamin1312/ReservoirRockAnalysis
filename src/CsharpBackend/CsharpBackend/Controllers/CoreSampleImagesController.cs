@@ -193,8 +193,12 @@ namespace CsharpBackend
 
             if (coreSampleImage.PathToImage == null)
                 return NotFound("There is no image for this item");
+            var imageMat = DataConverter.GetImageMat(coreSampleImage.PathToImage);
 
-            var thumbImage = DataConverter.ThumbImage(coreSampleImage.GetImageMat(), height);
+            if (imageMat == null)
+                return NotFound("Can't read image for this item");
+
+            var thumbImage = DataConverter.ThumbImage(imageMat, height);
 
 
             var file = TmpFiles.SaveMat(thumbImage);
@@ -224,10 +228,13 @@ namespace CsharpBackend
             if (coreSampleImage == null)
                 return NotFound($"There is no item with id: {id}");
 
-            var maskImage = coreSampleImage.GetMaskImageMat();
+            if (coreSampleImage.PathToMask == null || coreSampleImage.PathToMask == "")
+                return NotFound($"There is no mask for this item");
+
+            var maskImage = DataConverter.GetMaskImageMat(coreSampleImage.PathToMask);
 
             if (maskImage == null)
-                return NotFound($"There is no item mask for this item");
+                return NotFound($"Can't load mask for this item");
 
             var file = TmpFiles.SaveMat(maskImage);
             return PhysicalFile(file, "image/png");
@@ -247,7 +254,7 @@ namespace CsharpBackend
             if (coreSampleImage.PathToMask == null)
                 return NotFound($"There is no mask for this item");
 
-            var imageWithMask = coreSampleImage.GetImageWithMaskMat();
+            var imageWithMask = DataConverter.GetImageWithMaskMat(coreSampleImage.PathToImage, coreSampleImage.PathToMask);
 
 
             var file = TmpFiles.SaveMat(imageWithMask);
