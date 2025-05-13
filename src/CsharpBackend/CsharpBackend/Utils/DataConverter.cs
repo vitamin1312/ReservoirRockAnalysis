@@ -2,12 +2,23 @@
 using Emgu.CV.Structure;
 using Emgu.CV;
 using Microsoft.ML.OnnxRuntime.Tensors;
+using CsharpBackend.Config;
 
 namespace CsharpBackend.Utils
 {
 
-    public class DataConverter
+    public static class DataConverter
     {
+
+        private static PoreClasses _poreClassses;
+        private static PoreColors _poreColors;
+
+
+        public static void Init(PoreClasses poreClasses, PoreColors poreColors)
+        {
+            _poreClassses = poreClasses;
+            _poreColors = poreColors;
+        }
 
         public static Mat CvtBgr2Rgb(Mat CoreSampleImage)
         {

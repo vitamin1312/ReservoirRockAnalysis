@@ -1,12 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using CsharpBackend.Data;
 using CsharpBackend.NeuralNetwork;
 using CsharpBackend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using CsharpBackend.Repository;
-using Microsoft.Identity.Client;
+using CsharpBackend.Config;
+using CsharpBackend.Utils;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace CsharpBackend
 {
@@ -14,37 +16,36 @@ namespace CsharpBackend
     {
         public static void Main(string[] args)
         {
-            //var myPolicy = "myPolicy";
 
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddCors();
 
             builder.Services.AddDbContext<CsharpBackendContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("CsharpBackendContext") ?? throw new InvalidOperationException("Connection string 'CsharpBackendContext' not found.")));
-
-            /*            builder.Services.AddCors(options =>
-                        {
-                            options.AddPolicy(name: myPolicy,
-                                policy =>
-                                {
-                                    policy.AllowAnyHeader()
-                                          .AllowAnyMethod()
-                                            .AllowAnyOrigin();
-                                        //.SetIsOriginAllowedToAllowWildcardSubdomains();
-                                });
-                        });*/
-
-
+                options.UseSqlServer(
+                    builder.Configuration
+                    .GetConnectionString("CsharpBackendContext") ??
+                    throw new InvalidOperationException("Connection string 'CsharpBackendContext' not found.")
+                    )
+                );
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<INetworkManager, NetworkManager>();
+            builder.Services.AddSingleton<INetworkManager, NetworkManager>();
             builder.Services.AddScoped<IImageRepository, ImageRepository>();
             builder.Services.Configure<AppConfig>(builder.Configuration.GetSection("AppConfig"));
 
+            var appConfig = builder.Configuration.GetSection("AppConfig").Get<AppConfig>();
+            if (appConfig == null)
+                throw new InvalidOperationException("There are no app config");
+
+            var poreClassesJson = File.ReadAllText(appConfig.PathToPoreClasses);
+            var poreClasses = JsonConvert.DeserializeObject<List<PoreClasses>>(poreClassesJson)?.FirstOrDefault();
+            var poreColorsJson = File.ReadAllText(appConfig.PathToPoreColors);
+            var poreColors = JsonConvert.DeserializeObject<PoreColors>(poreColorsJson);
 
 
+            DataConverter.Init(poreClasses, poreColors);
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
@@ -61,6 +62,8 @@ namespace CsharpBackend
                             ValidateIssuerSigningKey = true,
                         };
                     });
+
+
 
 
             var app = builder.Build();

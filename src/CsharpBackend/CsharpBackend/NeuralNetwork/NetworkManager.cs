@@ -1,4 +1,5 @@
-﻿using CsharpBackend.Utils;
+﻿using CsharpBackend.Config;
+using CsharpBackend.Utils;
 using Emgu.CV;
 using Emgu.CV.Ocl;
 using Emgu.CV.Structure;
