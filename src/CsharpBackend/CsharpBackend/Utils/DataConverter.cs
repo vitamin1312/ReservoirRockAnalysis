@@ -5,8 +5,10 @@ using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace CsharpBackend.Utils
 {
+
     public class DataConverter
     {
+
         public static Mat CvtBgr2Rgb(Mat CoreSampleImage)
         {
             var RgbImage = new Mat(CoreSampleImage.Cols, CoreSampleImage.Rows, DepthType.Cv8U, 3);
@@ -17,6 +19,17 @@ namespace CsharpBackend.Utils
         public static Mat ResizeImage(Mat Image, int NumCols, int NumRows, int NumImgChannels)
         {
             var ResizedImage = new Mat(NumCols, NumRows, DepthType.Cv8U, NumImgChannels);
+            CvInvoke.Resize(Image, ResizedImage, new System.Drawing.Size(NumCols, NumRows));
+            return ResizedImage;
+        }
+
+        public static Mat ThumbImage(Mat Image, int NumCols)
+        {
+            int k = Image.Cols / NumCols;
+            int NumRows = Image.Rows / k;
+            NumCols = Image.Cols / k;
+
+            var ResizedImage = new Mat(NumRows, NumCols, DepthType.Cv8U, Image.NumberOfChannels);
             CvInvoke.Resize(Image, ResizedImage, new System.Drawing.Size(NumCols, NumRows));
             return ResizedImage;
         }
