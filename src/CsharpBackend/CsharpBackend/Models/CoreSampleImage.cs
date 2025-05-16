@@ -1,7 +1,4 @@
-﻿using Emgu.CV;
-using Emgu.CV.CvEnum;
-using Emgu.CV.Structure;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 
 namespace CsharpBackend.Models
@@ -19,6 +16,8 @@ namespace CsharpBackend.Models
         public int ImageInfoId { get; set; }
 
         public ImageInfo ImageInfo { get; set; }
+
+        public ICollection<PoreInfo>? PoresInfo { get; } = new List<PoreInfo>();
 
         // Methods
 
