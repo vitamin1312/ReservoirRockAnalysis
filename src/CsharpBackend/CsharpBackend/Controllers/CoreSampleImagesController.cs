@@ -13,6 +13,8 @@ using Microsoft.Extensions.Options;
 using CsharpBackend.Utils;
 using Microsoft.AspNetCore.Cors;
 using CsharpBackend.Config;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Util;
 
 namespace CsharpBackend
 {
@@ -22,7 +24,7 @@ namespace CsharpBackend
     public class CoreSampleImagesController : ControllerBase
     {
         private readonly IImageRepository repository;
-        private int MaxFileLength = 15 * 1024 * 1024;
+        private int MaxFileLength = 60 * 1024 * 1024;
         private INetworkManager _networkManager;
         private AppConfig _config;
 
@@ -103,6 +105,7 @@ namespace CsharpBackend
             return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
         }
 
+        [RequestSizeLimit(104857600)]
         [HttpPost]
         [Route("uploadimagemask")]
         async public Task<ActionResult<CoreSampleImage>> UploadImageMask(IFormFile file, [FromForm] ImageInfoDTO imageInfoDTO)
@@ -113,10 +116,21 @@ namespace CsharpBackend
 
             var coreSampleImage = CoreSampleImage.WithMask(_config.PathToWWWROOT, Path.GetExtension(file.FileName));
 
-            using (var stream = new FileStream(coreSampleImage.PathToMask, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            using var memstream = new MemoryStream();
+            file.CopyTo(memstream);
+            byte[] imageData = memstream.ToArray();
+
+            Mat ImageMask = new();
+            CvInvoke.Imdecode(imageData, ImreadModes.Unchanged, ImageMask);
+
+            if (ImageMask == null || ImageMask.IsEmpty)
+                throw new Exception("Can't decode image");
+
+            var Mask = DataConverter.ImageMaskToMask(ImageMask);
+            using var buf = new VectorOfByte();
+            CvInvoke.Imencode(".png", Mask, buf);
+
+            await System.IO.File.WriteAllBytesAsync(coreSampleImage.PathToMask, buf.ToArray());
 
             var imageInfo = new ImageInfo(imageInfoDTO);
 

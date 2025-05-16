@@ -3,6 +3,9 @@ using Emgu.CV.Structure;
 using Emgu.CV;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using CsharpBackend.Config;
+using CsharpBackend.Models;
+using System.Drawing;
+using System.Threading.Tasks;
 
 namespace CsharpBackend.Utils
 {
@@ -12,12 +15,19 @@ namespace CsharpBackend.Utils
 
         private static PoreClasses _poreClassses;
         private static PoreColors _poreColors;
-
+        private static Dictionary<int, byte[]> IndexColorMap;
 
         public static void Init(PoreClasses poreClasses, PoreColors poreColors)
         {
             _poreClassses = poreClasses;
             _poreColors = poreColors;
+
+            IndexColorMap = new();
+
+            foreach (var poreClass in poreClasses.Classes)
+            {
+                IndexColorMap[poreClass.Index] = poreColors.GetBGR(poreClass.Color);
+            }
         }
 
         public static Mat CvtBgr2Rgb(Mat CoreSampleImage)
@@ -131,6 +141,32 @@ namespace CsharpBackend.Utils
             Image.Data[i, j, 2] = r;
         }
 
+        private static bool IsEqual(
+            ref Image<Bgr, byte> Image,
+            int i, int j,
+            byte[] bgrColor
+            )
+        {
+            return (
+                    Image.Data[i, j, 0] == bgrColor[0] &&
+                    Image.Data[i, j, 1] == bgrColor[1] &&
+                    Image.Data[i, j, 2] == bgrColor[2]
+                );
+        }
+
+
+        // todo: convert byte array to bgr object
+        private static void SetColor(
+            ref Image<Bgr, byte> Image,
+            int i, int j,
+            byte[] bgrColor
+            )
+        {
+            Image.Data[i, j, 0] = bgrColor[0];
+            Image.Data[i, j, 1] = bgrColor[1];
+            Image.Data[i, j, 2] = bgrColor[2];
+        }
+
         private static void SetColorFrom(
             ref Image<Bgr, byte> ImageToSet,
             ref Image<Bgr, byte> ImageToGet,
@@ -146,6 +182,7 @@ namespace CsharpBackend.Utils
 
 
             var ImageMask = new Image<Bgr, byte>(Mask.Size);
+            byte[] bgrColor;
 
             using (var ConvertedMask = Mask.ToImage<Gray, byte>())
             {
@@ -153,19 +190,91 @@ namespace CsharpBackend.Utils
                 {
                     for (int i = 0; i < Mask.Rows; ++i)
                     {
-                        if (ConvertedMask.Data[i, j, 0] == 0)
-                            SetColor(ref ImageMask, i, j, 0, 0, 0);
-                        else if (ConvertedMask.Data[i, j, 0] == 1)
-                            SetColor(ref ImageMask, i, j, 0, 255, 0);
-                        else if (ConvertedMask.Data[i, j, 0] == 2)
-                            SetColor(ref ImageMask, i, j, 0, 0, 255);
-                        else if (ConvertedMask.Data[i, j, 0] == 3)
-                            SetColor(ref ImageMask, i, j, 0, 255, 255);
+                        bgrColor = IndexColorMap[ConvertedMask.Data[i, j, 0]];
+                        SetColor(ref ImageMask, i, j, bgrColor);
                     }
                 }
             }
 
             return ImageMask.Mat;
+        }
+
+        public static Mat BgrBinarization(Mat image, byte threshold = 128)
+        {
+            // Преобразуем в Image<,> для удобного доступа
+            var img = image.ToImage<Bgr, byte>();
+            for (int i = 0; i < img.Rows; i++)
+                for (int j = 0; j < img.Cols; j++)
+                    for (int c = 0; c < 3; c++)
+                        img.Data[i, j, c] = (img.Data[i, j, c] < threshold) ? (byte)0 : (byte)255;
+            return img.Mat;
+        }
+
+        public static Mat BgraBinarization(Mat image, byte threshold = 128)
+        {
+            var img = image.ToImage<Bgra, byte>();
+
+            for (int i = 0; i < img.Rows; i++)
+            {
+                for (int j = 0; j < img.Cols; j++)
+                {
+                    for (int c = 0; c < 4; c++)
+                    {
+                        img.Data[i, j, c] = (img.Data[i, j, c] < threshold) ? (byte)0 : (byte)255;
+                    }
+
+                    if (img.Data[i, j, 3] == 0)
+                    {
+                        img.Data[i, j, 0] = 0;
+                        img.Data[i, j, 1] = 0;
+                        img.Data[i, j, 2] = 0;
+                    }
+                }
+            }
+
+            return img.Mat;
+        }
+
+        public static Mat ConvertBgra2Bgr(Mat bgra)
+        {
+            var bgr = new Mat();
+            CvInvoke.CvtColor(bgra, bgr, ColorConversion.Bgra2Bgr);
+            return bgr;
+        }
+
+        public static Mat ImageMaskToMask(Mat imageMask)
+        {
+            Mat processed;
+            if (imageMask.NumberOfChannels == 4)
+            {
+                processed = BgraBinarization(imageMask);
+                processed = ConvertBgra2Bgr(processed);
+            }
+            else
+            {
+                processed = BgrBinarization(imageMask);
+            }
+
+            var mask = new Mat(imageMask.Size, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(0));
+            var imgMask = mask.ToImage<Gray, byte>();
+            var imgProcessed = processed.ToImage<Bgr, byte>();
+
+            foreach (var kvp in IndexColorMap)
+            {
+                byte[] targetColor = kvp.Value;
+                int index = kvp.Key;
+
+                for (int i = 0; i < imgProcessed.Rows; i++)
+                {
+                    for (int j = 0; j < imgProcessed.Cols; j++)
+                    {
+                        if (IsEqual(ref imgProcessed, i, j, targetColor))
+                            imgMask.Data[i, j, 0] = (byte)index;
+                    }
+                }
+            }
+            return imgMask.Mat;
         }
 
 
