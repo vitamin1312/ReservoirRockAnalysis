@@ -54,6 +54,18 @@ namespace CsharpBackend.Repository
             await db.CoreSampleImage.AddAsync(image);
         }
 
+        public async Task AddPorosityInfo(IEnumerable<PoreInfo> poresInfo)
+        {
+            await db.PoreInfo.AddRangeAsync(poresInfo);
+        }
+
+        public async Task<IEnumerable<PoreInfo>> GetImagePoresInfo(int id)
+        {
+            return await db.PoreInfo
+                .Where(p => p.CoreSampleImageId == id)
+                .ToListAsync();
+        }
+
         public void UpdateImage(CoreSampleImage image)
         {
             db.Entry(image).State = EntityState.Modified;

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Cors;
 using CsharpBackend.Config;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Util;
+using ClosedXML.Excel;
 
 namespace CsharpBackend
 {
@@ -275,6 +276,44 @@ namespace CsharpBackend
             return PhysicalFile(file, "image/png");
         }
 
+
+        [HttpPost]
+        [Route("poreinfo/{id}")]
+        public async Task<ActionResult> GetPoresInfo(int id, [FromBody] double pixelLengthRatio)
+        {
+            var coreSampleImage = await repository.GetImage(id);
+
+            if (coreSampleImage == null)
+                return NotFound($"No item with id: {id}");
+
+            if (string.IsNullOrEmpty(coreSampleImage.PathToMask))
+                return NotFound("No mask available for this item");
+
+            var mask = DataConverter.GetMaskMat(coreSampleImage.PathToMask);
+
+            if (mask == null)
+                return NotFound("Unable to read the mask for this item");
+
+            var poresInfo = (await repository.GetImagePoresInfo(id)).ToList();
+
+            if (poresInfo.Count == 0)
+            {
+                poresInfo = PorosityAnalyzer.CalculatePorosityInfo(mask, pixelLengthRatio, coreSampleImage.Id).ToList();
+                await repository.AddPorosityInfo(poresInfo);
+                await repository.Save();
+            }
+
+            using var workbook = new XLWorkbook();
+            PorosityAnalyzer.ExportPoreInfoToWorksheet(workbook, poresInfo);
+            var filePath = TmpFiles.SaveExcel(workbook);
+
+            return PhysicalFile(
+                filePath,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            );
+        }
+
+
         [HttpGet("predict/{id}")]
         public async Task<ActionResult<CoreSampleImage>> PredictMaskForItem(int id)
         {
@@ -292,7 +331,7 @@ namespace CsharpBackend
 
             coreSampleImage.PathToMask = coreSampleImage.GenerateMaskPath(_config.PathToWWWROOT);
 
-            _networkManager.Predict(coreSampleImage.PathToImage, coreSampleImage.PathToMask);
+            await _networkManager.Predict(coreSampleImage.PathToImage, coreSampleImage.PathToMask);
 
             repository.UpdateImage(coreSampleImage);
 

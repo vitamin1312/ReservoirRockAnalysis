@@ -17,6 +17,8 @@ namespace CsharpBackend.Repository
         Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageWithMask();
         Task<ActionResult<IEnumerable<CoreSampleImage>>> GetCoreSampleImageWithoutMask();
         bool CoreSampleImageExists(int id);
+        Task AddPorosityInfo(IEnumerable<PoreInfo> poresInfo);
+        Task<IEnumerable<PoreInfo>> GetImagePoresInfo(int id);
 
         // Images info
         void UpdateInfo(ImageInfo info);
