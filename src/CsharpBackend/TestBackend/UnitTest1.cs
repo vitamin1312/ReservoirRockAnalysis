@@ -35,6 +35,7 @@ namespace TestBackend
 
             // инициализируем
             DataConverter.Init(poreClasses, poreColors);
+            PorosityConverter.Init(poreClasses, poreColors);
             int size = (int)(1024);
             var neuralNetwork = new NeuralNetwork(
                 @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\resources\unetppforcsharp.onnx",
@@ -42,7 +43,7 @@ namespace TestBackend
             );
             var coreSampleImage = new CoreSampleImage()
             {
-                PathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\train-test\segmentation-train\image0318261_4.png"
+                PathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\Images\Sihor\images\318261_2.png"
             };
 
             var image = DataConverter.GetImageMat(coreSampleImage.PathToImage);
@@ -51,10 +52,13 @@ namespace TestBackend
 
             var inputImage = await NeuralNetwork.ImagePreprocessing(image);
             var mask = await NeuralNetwork.ProcessImageWithNN(inputImage);
-            var maskResized = DataConverter.ResizeImage(mask, image.Cols, image.Rows, 3);
+            var maskResized = DataConverter.ResizeImage(mask, image.Cols, image.Rows, 1);
 
             var pathToImage = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles\image.png";
             var pathToMask = @"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\wwwroot\ImageFiles\mask.png";
+
+            image = DataConverter.ResizeImage(image, 1024, 1024, 3);
+            maskResized = DataConverter.ResizeImage(mask, 1024, 1024, 1);
 
             image.Save(pathToImage);
             maskResized.Save(pathToMask);
@@ -63,21 +67,17 @@ namespace TestBackend
             coreSampleImage.PathToMask = pathToMask;
 
             var Image = DataConverter.GetImageMat(coreSampleImage.PathToImage);
-            var Mask = DataConverter.GetMaskMat(coreSampleImage.PathToImage);
+            var Mask = DataConverter.GetMaskMat(coreSampleImage.PathToMask);
             var MaskImage = DataConverter.GetMaskImageMat(coreSampleImage.PathToMask);
             var ImageWithMask = DataConverter.GetImageWithMaskMat(coreSampleImage.PathToImage, coreSampleImage.PathToMask);
-            //CvInvoke.Imshow("image", Image);
-            //CvInvoke.Imshow("mask", Mask * 255 / 5);
-            //CvInvoke.Imshow("maskImage", MaskImage);
-            //CvInvoke.Imshow("ImageWithMask", ImageWithMask);
-            //CvInvoke.WaitKey(0);
 
-            var RealMaskImage = new Mat(@"C:\Users\Viktor\Documents\IT\ReservoirRockAnalysis\data\Images\Sihor\image_masks\318261_2.png");
-            RealMaskImage = DataConverter.BgraBinarization(RealMaskImage);
-            RealMaskImage = DataConverter.ConvertBgra2Bgr(RealMaskImage);
-            CvInvoke.Imshow("RealMaskImage", RealMaskImage);
+            var poresInfo = PorosityAnalyzer.CalculatePorosityInfo(Mask, 1);
+
+            CvInvoke.Imshow("image", Image);
+            CvInvoke.Imshow("mask", Mask * 255 / 5);
+            CvInvoke.Imshow("maskImage", MaskImage);
+            CvInvoke.Imshow("ImageWithMask", ImageWithMask);
             CvInvoke.WaitKey(0);
-
         }
     }
 }
