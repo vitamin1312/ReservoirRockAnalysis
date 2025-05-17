@@ -16,6 +16,7 @@ namespace CsharpBackend.Data
         public DbSet<CsharpBackend.Models.ImageInfo> ImageInfo { get; set; } = default!;
         public DbSet<CsharpBackend.Models.Field> Field { get; set; } = default!;
         public DbSet<CsharpBackend.Models.User> User { get; set; } = default!;
+        public DbSet<CsharpBackend.Models.PoreInfo> PoreInfo { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

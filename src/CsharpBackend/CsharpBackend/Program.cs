@@ -48,6 +48,7 @@ namespace CsharpBackend
                 throw new InvalidOperationException("Error while loading metadata (pore colors and pore classes)");
 
             DataConverter.Init(poreClasses, poreColors);
+            PorosityAnalyzer.Init(poreClasses, poreColors);
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
