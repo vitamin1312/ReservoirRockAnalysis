@@ -1,4 +1,5 @@
-﻿using Emgu.CV;
+﻿using ClosedXML.Excel;
+using Emgu.CV;
 using System.CodeDom.Compiler;
 
 namespace CsharpBackend.Utils
@@ -10,6 +11,14 @@ namespace CsharpBackend.Utils
             var tempFiles = new TempFileCollection();
             string file = tempFiles.AddExtension("png");
             image.Save(file);
+            return file;
+        }
+
+        static public string SaveExcel(XLWorkbook workbook)
+        {
+            var tempFiles = new TempFileCollection();
+            string file = tempFiles.AddExtension("xlsx");
+            workbook.SaveAs(file);
             return file;
         }
     }

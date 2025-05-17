@@ -10,26 +10,8 @@ using System.Threading.Tasks;
 namespace CsharpBackend.Utils
 {
 
-    public static class DataConverter
+    public class DataConverter : PorosityConverter
     {
-
-        private static PoreClasses _poreClassses;
-        private static PoreColors _poreColors;
-        private static Dictionary<int, byte[]> IndexColorMap;
-
-        public static void Init(PoreClasses poreClasses, PoreColors poreColors)
-        {
-            _poreClassses = poreClasses;
-            _poreColors = poreColors;
-
-            IndexColorMap = new();
-
-            foreach (var poreClass in poreClasses.Classes)
-            {
-                IndexColorMap[poreClass.Index] = poreColors.GetBGR(poreClass.Color);
-            }
-        }
-
         public static Mat CvtBgr2Rgb(Mat CoreSampleImage)
         {
             var RgbImage = new Mat(CoreSampleImage.Cols, CoreSampleImage.Rows, DepthType.Cv8U, 3);
