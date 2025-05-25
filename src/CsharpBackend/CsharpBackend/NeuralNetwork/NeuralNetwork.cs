@@ -42,7 +42,7 @@ namespace CsharpBackend.NeuralNetwork
 
             DataConverter.MatToTensor(CoreSampleImage, ImageSize, ImageSize, ref input);
 
-            var onnxInput = NamedOnnxValue.CreateFromTensor("input", input);
+            var onnxInput = NamedOnnxValue.CreateFromTensor("x", input);
             
             GC.Collect();
             var onnxInputArray = new[] { onnxInput };

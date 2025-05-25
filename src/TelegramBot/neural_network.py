@@ -21,7 +21,6 @@ class ONNXModel:
     def read_img(path):
         return np.array(PIL.Image.open(path).convert('RGB'))
 
-    
     @staticmethod
     def get_color(clls):
         if clls == 0:

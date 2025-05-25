@@ -159,7 +159,7 @@ namespace CsharpBackend.Utils
             ImageToSet.Data[i, j, 2] = ImageToGet.Data[i, j, 2];
         }
 
-        private static Mat? Mask2ImageMask(ref Mat Mask)
+        public static Mat? Mask2ImageMask(ref Mat Mask)
         {
 
 
