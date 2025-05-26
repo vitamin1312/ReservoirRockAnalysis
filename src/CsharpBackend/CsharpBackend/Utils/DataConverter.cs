@@ -41,7 +41,7 @@ namespace CsharpBackend.Utils
         {
             var FloatImage = new Mat(NRows, NCols, DepthType.Cv32F, 3);
             CoreSampleImage.ConvertTo(FloatImage, DepthType.Cv32F);
-            FloatImage = FloatImage / 127.5 - 1;
+            FloatImage = FloatImage / 255;
 
             return FloatImage;
         }
