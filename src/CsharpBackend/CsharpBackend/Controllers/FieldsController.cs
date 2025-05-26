@@ -5,12 +5,14 @@ using CsharpBackend.Data;
 using CsharpBackend.Models;
 using CsharpBackend.Repository;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CsharpBackend.Controllers
 {
     [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class FieldsController : ControllerBase
     {
         private readonly IImageRepository repository;

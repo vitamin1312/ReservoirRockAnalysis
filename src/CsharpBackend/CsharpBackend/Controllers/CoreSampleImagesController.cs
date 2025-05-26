@@ -22,6 +22,7 @@ namespace CsharpBackend
     [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CoreSampleImagesController : ControllerBase
     {
         private readonly IImageRepository repository;
@@ -279,9 +280,9 @@ namespace CsharpBackend
         }
 
 
-        [HttpPost]
-        [Route("poreinfo/{id}")]
-        public async Task<ActionResult> GetPoresInfo(int id, [FromBody] double pixelLengthRatio)
+        [HttpGet]
+        [Route("poreinfo/{id}/{pixelLengthRatio}")]
+        public async Task<ActionResult> GetPoresInfo(int id, double pixelLengthRatio)
         {
             var coreSampleImage = await repository.GetImage(id);
 
