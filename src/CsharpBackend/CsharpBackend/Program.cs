@@ -7,8 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using CsharpBackend.Repository;
 using CsharpBackend.Config;
 using CsharpBackend.Utils;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace CsharpBackend
 {
@@ -49,6 +49,7 @@ namespace CsharpBackend
 
             DataConverter.Init(poreClasses, poreColors);
             PorosityAnalyzer.Init(poreClasses, poreColors);
+
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>

@@ -30,6 +30,12 @@ namespace CsharpBackend.Data
                 .WithOne(i => i.Field)
                 .HasForeignKey(i => i.FieldId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<PoreInfo>()
+                .HasOne(p => p.coreSampleImage)
+                .WithMany(c => c.PoresInfo)
+                .HasForeignKey(p => p.CoreSampleImageId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

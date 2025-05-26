@@ -52,6 +52,7 @@ namespace CsharpBackend
             return null;
         }
 
+        [RequestSizeLimit(104857600)]
         [HttpPost]
         [Route("upload")]
         async public Task<ActionResult<CoreSampleImage>> UploadImage(IFormFile file,
@@ -81,6 +82,7 @@ namespace CsharpBackend
             
         }
 
+        [RequestSizeLimit(104857600)]
         [HttpPost]
         [Route("uploadmask")]
         async public Task<ActionResult<CoreSampleImage>> UploadMask(IFormFile file, [FromForm] ImageInfoDTO imageInfoDTO)
@@ -391,7 +393,6 @@ namespace CsharpBackend
         // DELETE: api/CoreSampleImages/5
         [HttpDelete]
         [Route("deleteitem/{id}")]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCoreSampleImage(int id)
         {
             var coreSampleImage = await repository.GetImage(id);
