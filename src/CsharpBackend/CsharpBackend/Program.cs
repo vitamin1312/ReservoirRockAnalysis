@@ -18,7 +18,15 @@ namespace CsharpBackend
         {
 
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddCors();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("MyPolicy", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
 
             builder.Services.AddDbContext<CsharpBackendContext>(options =>
                 options.UseSqlServer(
@@ -69,12 +77,7 @@ namespace CsharpBackend
 
             var app = builder.Build();
             //app.UseHttpsRedirection();
-            app.UseCors(
-                    options => options
-                    .WithOrigins("http://localhost:5173")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                );
+            app.UseCors("MyPolicy");
 
             // Configure the HTTP request pipeline.
 
