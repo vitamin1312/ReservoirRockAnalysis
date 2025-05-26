@@ -21,7 +21,7 @@ const ImageTable: React.FC<ImageTableProps> = ({ imageDataList, onImageClick }) 
             </thead>
             <tbody>
               {imageDataList.map((item, index) => (
-                <tr key={index} className="border-b" onClick={() => onImageClick(item)}>
+                <tr key={index} className="border-b cursor-pointer" onClick={() => onImageClick(item)}>
                   <td className="py-2 px-4 truncate">{item.imageInfo.name || "Untitled"}</td>
                   <td className="py-2 px-4 truncate">{item.imageInfo.description || "Нет описания"}</td>
                   <td className="py-2 px-4">

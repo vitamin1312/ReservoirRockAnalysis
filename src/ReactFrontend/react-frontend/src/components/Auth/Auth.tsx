@@ -53,6 +53,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         localStorage.setItem("jwtToken", token);
         setAuthError('');
         onClose();
+        window.location.reload();
       } else {
         setAuthError('Неверный логин или пароль');
         console.error("Ошибка авторизации:", error);

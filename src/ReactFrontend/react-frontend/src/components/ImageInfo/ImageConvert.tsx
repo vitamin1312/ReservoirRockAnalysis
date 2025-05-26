@@ -1,6 +1,6 @@
 import React from "react";
 import { ImageData } from "../../Models/ImageData";
-import { deleteImage, generateMask, putImage } from "../../RestAPI/RestAPI";
+import { deleteImage, generateMask, putImage, downloadPorosityExcel } from "../../RestAPI/RestAPI";
 
 interface ImageConvertProps {
   image: ImageData | null;
@@ -45,6 +45,15 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted, fetc
         alert("Не удалось удалить изображение.");
       }
     };
+
+    const handleGetPososity = async () => {
+      try {
+        await downloadPorosityExcel(image.id, image.imageInfo.name)
+      } catch (error) {
+        console.error("Ошибка при обработке изображения изображения:", error);
+        alert("Не удалось получить информацию о пористости изображения.");
+      }
+    }
   
     return (
       <div className="flex flex-row justify-center items-center m-1 mb-16">
@@ -67,6 +76,14 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted, fetc
         >
           Сгенерировать маску
         </button>
+
+                <button
+          className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 m-0.5"
+          onClick={handleGetPososity}
+        >
+          Параметры пористости
+        </button>
+
       </div>
     );
 };

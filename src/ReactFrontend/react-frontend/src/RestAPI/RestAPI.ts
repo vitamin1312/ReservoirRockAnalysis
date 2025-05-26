@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { FieldData, ImageData } from "../Models/ImageData";
 import { FilterParams } from "../Models/Filter";
 import CryptoJS from "crypto-js";
@@ -22,6 +22,26 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+let openAuthModalCallback: (() => void) | null = null;
+
+// Экспортируем метод установки колбэка
+export const setAuthModalOpener = (opener: () => void) => {
+  openAuthModalCallback = opener;
+};
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("jwtToken");
+      if (openAuthModalCallback) {
+        openAuthModalCallback(); // 🔥 Открываем модалку
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const getImagesFromField = async (fieldId: number): Promise<Array<ImageData>> => {
   try {
       const response = await axiosInstance.get(`CoreSampleImages/getfromfield/${fieldId}`);
@@ -31,6 +51,42 @@ export const getImagesFromField = async (fieldId: number): Promise<Array<ImageDa
       throw error;
     }
 }
+
+export const downloadPorosityExcel = async (imageId: number, imageName: string): Promise<void> => {
+  try {
+    const response = await axiosInstance.post(
+      `CoreSampleImages/poreinfo/${imageId}/${1}`,
+      { data: 1.0 },
+      { responseType: "blob" }
+    );
+
+    const contentDisposition = response.headers["content-disposition"];
+    let fileName = `${imageName}_porosity.xlsx`;
+
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)|filename="?([^"]+)"?/);
+      if (fileNameMatch) {
+        fileName = decodeURIComponent(fileNameMatch[1] || fileNameMatch[2]);
+      }
+    }
+
+    const url = window.URL.createObjectURL(
+      new Blob([response.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error downloading Excel file:", error);
+    throw error;
+  }
+};
 
 export const getImagesWithMask = async (): Promise<Array<ImageData>> => {
   try {
@@ -55,6 +111,18 @@ export const getImagesWithoutMask = async (): Promise<Array<ImageData>> => {
 export const getImageFile = async (imageId: number): Promise<Blob> => {
   try {
     const response = await axiosInstance.get(`CoreSampleImages/getimagefile/${imageId}`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+};
+
+export const getThumbImageFile = async (imageId: number): Promise<Blob> => {
+  try {
+    const response = await axiosInstance.get(`CoreSampleImages/getimagefilethumb/${imageId}?height=150`, {
       responseType: 'blob',
     });
     return response.data;
@@ -126,12 +194,23 @@ export const getMaskImageFile = async (imageId: number): Promise<Blob> => {
 };
 
 
-export const getImageUrl = async (imageId: number): Promise<string> => {
+export const getImageUrl = async (imageId: number, thumb: boolean = false): Promise<string> => {
   try {
-    const file = await getImageFile(imageId);
-    return window.URL.createObjectURL(new Blob([file]));
+    let file: Blob | null = null;
+    
+    if (thumb) {
+      file = await getThumbImageFile(imageId)
+    } else {
+      file = await getImageFile(imageId);
+    }
+    if (file == null) {
+      throw Error("Can't load file")
+    }
+    return window.URL.createObjectURL(new Blob([file], { type: 'image/png' }));
   } catch (error) {
-    console.error('Error fetching images:', error);
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+      throw new Error('Нет изображения');
+    }
     throw error;
   }
 };
@@ -140,7 +219,7 @@ export const getImageUrl = async (imageId: number): Promise<string> => {
 export const getImageWithMaskUrl = async (imageId: number): Promise<string> => {
   try {
     const file = await getImageWithMaskFile(imageId);
-    return window.URL.createObjectURL(new Blob([file]));
+    return window.URL.createObjectURL(new Blob([file], { type: 'image/png' }));
   } catch (error) {
     console.error('Error fetching images:', error);
     throw error;
@@ -150,7 +229,7 @@ export const getImageWithMaskUrl = async (imageId: number): Promise<string> => {
 export const getMaskUrl = async (imageId: number): Promise<string> => {
   try {
     const file = await getMaskFile(imageId);
-    return window.URL.createObjectURL(new Blob([file]));
+    return window.URL.createObjectURL(new Blob([file], { type: 'image/png' }));
   } catch (error) {
     console.error('Error fetching images:', error);
     throw error;
@@ -160,7 +239,7 @@ export const getMaskUrl = async (imageId: number): Promise<string> => {
 export const getMaskImageUrl = async (imageId: number): Promise<string> => {
   try {
     const file = await getMaskImageFile(imageId);
-    return window.URL.createObjectURL(new Blob([file]));
+    return window.URL.createObjectURL(new Blob([file], { type: 'image/png' }));
   } catch (error) {
     console.error('Error fetching images:', error);
     throw error;
@@ -316,7 +395,7 @@ export const createField = async (name: string, description: string): Promise<vo
   }
 };
 
-export const uploadImage = async (file: File, description: string, fieldId: number) => {
+export const uploadImage = async (file: File, imageType: number, description: string, fieldId: number) => {
   var newfieldId: number | null;
   if (fieldId == -1)
     newfieldId = null;
@@ -329,14 +408,31 @@ export const uploadImage = async (file: File, description: string, fieldId: numb
     formData.append('fieldId', newfieldId.toString());
 
   try {
-    const response = await axiosInstance.post('CoreSampleImages/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    let response: AxiosResponse | null = null;
 
-    console.log('Image uploaded successfully:', response.data);
-    return response.data;
+    switch (imageType) {
+      case 0:
+        response = await axiosInstance.post('CoreSampleImages/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        break;
+
+      case 1:
+        response = await axiosInstance.post('CoreSampleImages/uploadmask', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        break;
+
+      case 2:
+        response = await axiosInstance.post('CoreSampleImages/uploadimagemask', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        break;
+    }
+
+    console.log('Image uploaded successfully:', response?.data);
+    return response?.data;
+
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error('Error uploading image:', error.response?.data);

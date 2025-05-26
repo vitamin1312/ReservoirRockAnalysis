@@ -20,8 +20,8 @@ const ImageUploadPage: React.FC = () => {
     fetchFields();
   };
 
-  const handleImageUpload = async (file: File, description: string, fieldId: number) => {
-    await uploadImage(file, description, fieldId);
+  const handleImageUpload = async (file: File, imageType: number, description: string, fieldId: number) => {
+    await uploadImage(file, imageType, description, fieldId);
     fetchFields();
   };
 
@@ -39,24 +39,23 @@ const ImageUploadPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-2 space-y-3 h-full">
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="container mx-auto p-2 space-y-3 flex flex-col h-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow">
         {/* Таблица месторождений */}
-        <div className="bg-white shadow-md rounded-lg p-4 overflow-y-auto max-h-96 border">
+        <div className="bg-white shadow-md rounded-lg p-4 overflow-y-auto border">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">Список месторождений</h3>
           <FieldTable fields={fieldsData} onDelete={handleFieldDelete} />
         </div>
 
         {/* Форма создания месторождения */}
-        <div className="bg-white shadow-md rounded-lg p-4 overflow-y-auto max-h-96 border">
+        <div className="bg-white shadow-md rounded-lg p-4 overflow-y-auto border">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">Создать месторождение</h3>
           <CreateFieldForm onCreate={handleCreateField} />
         </div>
       </div>
 
       {/* Форма загрузки изображения */}
-      <div className="bg-white shadow-md rounded-lg p-4 overflow-y-auto max-h-96 border">
+      <div className="bg-white shadow-md rounded-lg p-4 border overflow-y-auto flex-grow">
         <h3 className="text-xl font-semibold text-gray-700 mb-4">Загрузить изображение</h3>
         <ImageUploadForm onUpload={handleImageUpload} />
       </div>
