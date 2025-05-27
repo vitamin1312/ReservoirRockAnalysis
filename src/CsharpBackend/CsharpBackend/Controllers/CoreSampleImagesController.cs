@@ -299,8 +299,11 @@ namespace CsharpBackend
 
             var poresInfo = (await repository.GetImagePoresInfo(id)).ToList();
 
-            if (poresInfo.Count == 0)
+            bool allSame = poresInfo.Count > 0 && poresInfo.All(p => p.pixelLengthRatio == poresInfo[0].pixelLengthRatio);
+
+            if (poresInfo.Count == 0 || !allSame || poresInfo[0].pixelLengthRatio != pixelLengthRatio)
             {
+                repository.DeletePorosityInfo(poresInfo);
                 poresInfo = PorosityAnalyzer.CalculatePorosityInfo(mask, pixelLengthRatio, coreSampleImage.Id).ToList();
                 await repository.AddPorosityInfo(poresInfo);
                 await repository.Save();

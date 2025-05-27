@@ -54,9 +54,8 @@ export const getImagesFromField = async (fieldId: number): Promise<Array<ImageDa
 
 export const downloadPorosityExcel = async (imageId: number, imageName: string): Promise<void> => {
   try {
-    const response = await axiosInstance.post(
-      `CoreSampleImages/poreinfo/${imageId}/${1}`,
-      { data: 1.0 },
+    const response = await axiosInstance.get(
+      `CoreSampleImages/poreinfo/${imageId}/${1.0}`,
       { responseType: "blob" }
     );
 
@@ -341,6 +340,7 @@ export const putImage = async (imageId: number, imageData: ImageData): Promise<v
       creationDate: imageData.imageInfo.creationDate,
       fieldId: imageData.imageInfo.fieldId,
       field: imageData.imageInfo.field,
+      pixelLengthRatio: imageData.imageInfo.pixelLengthRatio.toString().replace('.', ',')
     },
     {
       headers: {
@@ -395,7 +395,7 @@ export const createField = async (name: string, description: string): Promise<vo
   }
 };
 
-export const uploadImage = async (file: File, imageType: number, description: string, fieldId: number) => {
+export const uploadImage = async (file: File, imageType: number, description: string, fieldId: number, pixelLengthRatio: string) => {
   var newfieldId: number | null;
   if (fieldId == -1)
     newfieldId = null;
@@ -404,6 +404,7 @@ export const uploadImage = async (file: File, imageType: number, description: st
   formData.append('file', file);
   formData.append('name', file.name)
   formData.append('description', description);
+  formData.append('pixelLengthRatio', pixelLengthRatio)
   if (newfieldId !== null)
     formData.append('fieldId', newfieldId.toString());
 

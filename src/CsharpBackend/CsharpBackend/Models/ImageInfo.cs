@@ -23,8 +23,17 @@ namespace CsharpBackend.Models
             UploadDate = DateTime.Now;
         }
 
+        public double pixelLengthRatio { get; set; }
+
         public ImageInfo(ImageInfoDTO dto)
         {
+            if (!double.TryParse(dto.pixelLengthRatio.Replace('.', ','), out double result))
+            {
+                if (result <= 0)
+                    throw new Exception("pixelLengthRatio must be greater than zero");
+            }
+
+            pixelLengthRatio = result;
             Name = (dto.Name != null) ? dto.Name : $"Image{Id}";
             Description = dto.Description;
             CreationDate = dto.CreationDate;

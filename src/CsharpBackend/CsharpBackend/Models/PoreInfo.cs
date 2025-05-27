@@ -37,6 +37,8 @@
         /// Используется для оценки выпуклости и плотности формы
         public double? ConvexArea { get; set; }
 
+        public double pixelLengthRatio { get; set; }
+
         public int? CoreSampleImageId { get; set; }
 
         public CoreSampleImage? coreSampleImage { get; set; }

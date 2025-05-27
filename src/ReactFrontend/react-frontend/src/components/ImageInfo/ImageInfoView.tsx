@@ -16,6 +16,19 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
   const [selectedFieldId, setSelectedFieldId] = useState<number>(image?.imageInfo.fieldId || 0);
   const [currentImage, setCurrentImage] = useState<ImageData | null>(image);
   const [selectedFunction, setSelectedFunction] = useState<string>('imageFunc');
+  const [pixelLengthValue, setpixelLengthValue] = useState("");
+
+    const handlepixelLengthValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+
+    // Разрешаем только числа и одну точку
+    if (/^\d*\.?\d*$/.test(newValue)) {
+      setpixelLengthValue(newValue);
+      if (image != null) {
+         image.imageInfo.pixelLengthRatio = Number(newValue);
+        }
+      }
+    };
 
   const urlFunctions: Record<string, (id: number) => Promise<string>> = {
     imageFunc: getImageUrl,
@@ -60,6 +73,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
     setCurrentImage(image);
     if (image) {
       setSelectedFieldId(image.imageInfo.fieldId?? 0);
+      setpixelLengthValue(String(image.imageInfo.pixelLengthRatio));
     }
   }, [image]);
 
@@ -140,6 +154,17 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
                   onChange={(e) => handleNameChange(e.target.value)}
                   className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
                 />
+              </div>
+
+                <div>
+                <label className="block text-gray-700 text-sm font-medium mb-1">Физическая длина пикселя:</label>
+                    <input
+                      type="text"
+                      value={pixelLengthValue}
+                      onChange={handlepixelLengthValueChange}
+                      placeholder="Введите число"
+                      className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
               </div>
 
               <div className="relative">

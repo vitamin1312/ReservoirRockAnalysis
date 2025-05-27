@@ -6,6 +6,7 @@ export interface ImageInfo {
     creationDate: string,
     fieldId: number | null,
     field: FieldData | null
+    pixelLengthRatio: number
 }
 
 export interface ImageData {

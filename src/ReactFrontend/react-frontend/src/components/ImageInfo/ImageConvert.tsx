@@ -30,7 +30,7 @@ const ImageConvert: React.FC<ImageConvertProps> = ({ image, onImageDeleted, fetc
           onImageDeleted();
           fetchImages();
         } catch (error) {
-          console.error("Ошибка при удалении изображения:", error);
+          console.error("Ошибка при сохранении изображения:", error);
           alert("Не удалось сохранить изображение.");
         }
       };

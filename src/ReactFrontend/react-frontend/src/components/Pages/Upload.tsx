@@ -20,8 +20,8 @@ const ImageUploadPage: React.FC = () => {
     fetchFields();
   };
 
-  const handleImageUpload = async (file: File, imageType: number, description: string, fieldId: number) => {
-    await uploadImage(file, imageType, description, fieldId);
+  const handleImageUpload = async (file: File, imageType: number, description: string, fieldId: number, pixelLengthRatio: string) => {
+    await uploadImage(file, imageType, description, fieldId, pixelLengthRatio);
     fetchFields();
   };
 

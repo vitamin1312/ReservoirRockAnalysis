@@ -56,7 +56,14 @@ namespace CsharpBackend.Repository
 
         public async Task AddPorosityInfo(IEnumerable<PoreInfo> poresInfo)
         {
+            if (!poresInfo.Any()) return;
             await db.PoreInfo.AddRangeAsync(poresInfo);
+        }
+
+        public void DeletePorosityInfo(IEnumerable<PoreInfo> poresInfo)
+        {
+            if (!poresInfo.Any()) return;
+            db.PoreInfo.RemoveRange(poresInfo);
         }
 
         public async Task<IEnumerable<PoreInfo>> GetImagePoresInfo(int id)

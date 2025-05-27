@@ -12,5 +12,7 @@ namespace CsharpBackend.Models.DTO
         public DateOnly? CreationDate { get; set; }
 
         public int? FieldId { get; set; }
+
+        public string pixelLengthRatio { get; set; }
     }
 }

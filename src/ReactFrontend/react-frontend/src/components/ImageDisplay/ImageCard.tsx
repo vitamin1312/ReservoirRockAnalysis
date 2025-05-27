@@ -5,9 +5,6 @@ import ImageComponent from "./ImageComponent";
 
 const ImageCard: React.FC<{ data: ImageData }> = ({ data }) => {
 
-
-
-
     return (
         <div className="w-96 bg-gray-100 shadow-md rounded-lg p-0.5 m-0.5 flex flex-row flex-auto justify-center items-center cursor-pointer">
             <div className="inline-block w-1/2 h-auto m-1">

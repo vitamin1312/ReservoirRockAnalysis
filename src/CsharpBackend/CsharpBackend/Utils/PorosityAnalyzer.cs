@@ -95,6 +95,7 @@ namespace CsharpBackend.Utils
                     info.CentroidY = centroidData[label].Y;
                     info.PorosityName = pore.Name;
                     info.Index = label;
+                    info.pixelLengthRatio = pixelLengthRatio;
                     info.CoreSampleImageId = coreSampleImageId;
 
                     poresInfo.Add(info);
