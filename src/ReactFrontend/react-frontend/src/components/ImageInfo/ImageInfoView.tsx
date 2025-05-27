@@ -24,9 +24,15 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
     // Разрешаем только числа и одну точку
     if (/^\d*\.?\d*$/.test(newValue)) {
       setpixelLengthValue(newValue);
-      if (image != null) {
-         image.imageInfo.pixelLengthRatio = Number(newValue);
-        }
+      if (currentImage) {
+        setCurrentImage({
+          ...currentImage,
+          imageInfo: {
+            ...currentImage.imageInfo,
+            pixelLengthRatio: Number(newValue), // ← правильно указываем поле
+      },
+    });
+      }
       }
     };
 

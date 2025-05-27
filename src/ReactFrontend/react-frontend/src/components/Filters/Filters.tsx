@@ -78,8 +78,10 @@ const Filters: React.FC<FiltersProps> = ({
             placeholder="Поиск"
             className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
-            onChange={(e) =>
-              setFilterParams({ ...filterParams, searchQuery: e.target.value })
+            onChange={(e) => {
+            setFilterParams({ ...filterParams, searchQuery: e.target.value || '' });
+              console.log(e.target.value);
+            }
             }
           />
         </form>

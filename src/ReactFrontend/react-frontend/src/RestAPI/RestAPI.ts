@@ -52,11 +52,13 @@ export const getImagesFromField = async (fieldId: number): Promise<Array<ImageDa
     }
 }
 
-export const downloadPorosityExcel = async (imageId: number, imageName: string): Promise<void> => {
+export const downloadPorosityExcel = async (imageId: number, imageName: string, pixelLengthRatio: number): Promise<void> => {
   try {
     const response = await axiosInstance.get(
-      `CoreSampleImages/poreinfo/${imageId}/${1.0}`,
-      { responseType: "blob" }
+      `CoreSampleImages/poreinfo/${imageId}/${pixelLengthRatio}`,
+      { responseType: "blob",
+        timeout: 90000
+      }
     );
 
     const contentDisposition = response.headers["content-disposition"];
@@ -280,6 +282,7 @@ export const getAllFields = async (): Promise<Array<FieldData>> => {
 
 export const getImagesByFilter = async (params: FilterParams): Promise<Array<ImageData>> => {
   try {
+    
     let images: Array<ImageData> = [];
 
     if (params.haveMask === undefined && (params.sortField === undefined || params.sortField === -1)) {
@@ -298,10 +301,11 @@ export const getImagesByFilter = async (params: FilterParams): Promise<Array<Ima
     }
 
     if (params.searchQuery !== undefined) {
+      console.log(params.searchQuery)
       const query: string = params.searchQuery.toLocaleLowerCase();
       images = images.filter(image => {
-        const name = image.imageInfo?.name.toLocaleLowerCase() || "";
-        const description = image.imageInfo?.description.toLocaleLowerCase() || "";
+        const name = image.imageInfo?.name ? image.imageInfo.name.toLocaleLowerCase() : "";
+        const description = image.imageInfo?.description ? image.imageInfo.description.toLocaleLowerCase() : "";
         return name.includes(query) || description.includes(query);
       });
     }
@@ -358,7 +362,7 @@ export const putImage = async (imageId: number, imageData: ImageData): Promise<v
 
 export const generateMask = async (fieldId: number): Promise<void> => {
   try {
-      const response = await axiosInstance.get(`CoreSampleImages/predict/${fieldId}`);
+      const response = await axiosInstance.get(`CoreSampleImages/predict/${fieldId}`, { timeout: 120000 });
       return response.data;
     } catch (error) {
       console.error('Error fetching images:', error);
@@ -395,51 +399,52 @@ export const createField = async (name: string, description: string): Promise<vo
   }
 };
 
-export const uploadImage = async (file: File, imageType: number, description: string, fieldId: number, pixelLengthRatio: string) => {
-  var newfieldId: number | null;
-  if (fieldId == -1)
-    newfieldId = null;
-  else newfieldId = fieldId
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('name', file.name)
-  formData.append('description', description);
-  formData.append('pixelLengthRatio', pixelLengthRatio)
-  if (newfieldId !== null)
-    formData.append('fieldId', newfieldId.toString());
+export const uploadImage = async (
+    file: File,
+    imageType: number,
+    description: string,
+    fieldId: number,
+    pixelLengthRatio: string
+  ) => {
+    const newFieldId = fieldId === -1 ? null : fieldId;
 
-  try {
-    let response: AxiosResponse | null = null;
-
-    switch (imageType) {
-      case 0:
-        response = await axiosInstance.post('CoreSampleImages/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        break;
-
-      case 1:
-        response = await axiosInstance.post('CoreSampleImages/uploadmask', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        break;
-
-      case 2:
-        response = await axiosInstance.post('CoreSampleImages/uploadimagemask', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        break;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("name", file.name);
+    formData.append("description", description);
+    formData.append("pixelLengthRatio", pixelLengthRatio);
+    if (newFieldId !== null) {
+      formData.append("fieldId", newFieldId.toString());
     }
 
-    console.log('Image uploaded successfully:', response?.data);
-    return response?.data;
+    const urlMap: { [key: number]: string } = {
+      0: "CoreSampleImages/upload",
+      1: "CoreSampleImages/uploadmask",
+      2: "CoreSampleImages/uploadimagemask",
+    };
 
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error uploading image:', error.response?.data);
-    } else {
-      console.error('Unexpected error:', error);
+    try {
+      const response = await axiosInstance.post(urlMap[imageType], formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+      });
+
+      console.log("Image uploaded successfully:", response.data);
+      return response.data;
+
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        if (status === 415) {
+          throw new Error("неподдерживаемый формат файла. Пожалуйста, загрузите изображение в формате PNG.");
+        } else if (status) {
+          throw new Error(`Ошибка загрузки изображения: код ${status}. ${error.response?.data?.message || ''}`);
+        } else {
+          throw new Error("Ошибка загрузки изображения: не удалось установить соединение с сервером.");
+        }
+      } else {
+        console.error("Unexpected error:", error);
+        throw new Error("Произошла неожиданная ошибка при загрузке изображения.");
+      }
     }
-    throw error;
-  }
-};
+  };

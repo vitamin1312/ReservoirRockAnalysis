@@ -6,7 +6,10 @@ import Select from 'react-select';
 
 interface ImageUploadFormProps {
   onUpload: (file: File, imageType: number, description: string, fieldId: number, pixelLengthRatio: string) => void;
+  fields: FieldData[];
+  refreshFields: () => void;
 }
+
 
 const options = [
   { value: 0, label: 'Изображение' },
@@ -14,7 +17,7 @@ const options = [
   { value: 2, label: 'Изображение маски' },
 ];
 
-const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onUpload }) => {
+const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onUpload, fields, refreshFields }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [newDescription, setNewDescription] = useState("");
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -85,7 +88,7 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onUpload }) => {
       pixelLengthValue.replace(',', '.')
     );
   } catch (error) {
-    setUploadError("Ошибка загрузки изображения");
+    setUploadError(`${error}`);
     console.error(error);
   } finally {
     setIsUploading(false);
@@ -124,13 +127,13 @@ const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onUpload }) => {
             </div>
        
       </div>
-      <Dropdown
-        label="Месторождение:"
-        placeholder="Выберите месторождение"
-        options={[{ id: -1, name: "Нет месторождения", description: "Нет месторождения" }, ...fieldsData]}
-        onSelect={handleFieldSelect}
-        selectedId={selectedFieldId}
-      />
+        <Dropdown
+          label="Месторождение:"
+          placeholder="Выберите месторождение"
+          options={[{ id: -1, name: "Нет месторождения", description: "Нет месторождения" }, ...fields]}
+          onSelect={handleFieldSelect}
+          selectedId={selectedFieldId}
+        />
       <h3 className="text-xl mb-3">Описание изображения</h3>
       <textarea
         value={newDescription}
