@@ -9,7 +9,7 @@
         public int _neuralNetworkCount { get; set; }
         public string PathToPoreClasses { get; set; }
         public string PathToPoreColors { get; set; }
-
         public int OverlapPixels { get; set; }
+        public string PathToWebDist { get; set; }
     }
 }

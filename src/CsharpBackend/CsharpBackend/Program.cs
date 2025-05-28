@@ -9,6 +9,7 @@ using CsharpBackend.Config;
 using CsharpBackend.Utils;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.FileProviders;
 
 namespace CsharpBackend
 {
@@ -77,6 +78,24 @@ namespace CsharpBackend
 
             var app = builder.Build();
             //app.UseHttpsRedirection();
+
+            // Укажем путь к твоей папке dist
+            var distPath = appConfig.PathToWebDist;
+
+            // Отдаем index.html при заходе на корень
+            app.UseDefaultFiles(new DefaultFilesOptions
+            {
+                DefaultFileNames = new List<string> { "index.html" },
+                FileProvider = new PhysicalFileProvider(distPath)
+            });
+
+            // Отдаем все остальные файлы из dist (js, css и т.д.)
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(distPath),
+                RequestPath = ""  // чтобы запросы без префикса шли сюда
+            });
+
             app.UseCors("MyPolicy");
 
             // Configure the HTTP request pipeline.
@@ -91,6 +110,12 @@ namespace CsharpBackend
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapFallback(async context =>
+            {
+                context.Response.ContentType = "text/html";
+                await context.Response.SendFileAsync(Path.Combine(distPath, "index.html"));
+            });
 
             app.Run();
         }
