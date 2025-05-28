@@ -24,7 +24,6 @@ axiosInstance.interceptors.request.use(
 
 let openAuthModalCallback: (() => void) | null = null;
 
-// Экспортируем метод установки колбэка
 export const setAuthModalOpener = (opener: () => void) => {
   openAuthModalCallback = opener;
 };
@@ -35,7 +34,7 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("jwtToken");
       if (openAuthModalCallback) {
-        openAuthModalCallback(); // 🔥 Открываем модалку
+        openAuthModalCallback();
       }
     }
     return Promise.reject(error);
