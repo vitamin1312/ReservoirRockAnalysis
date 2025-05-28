@@ -174,7 +174,7 @@ namespace CsharpBackend
             using var buf = new VectorOfByte();
             CvInvoke.Imencode(".png", Mask, buf);
 
-            if (coreSampleImage.PathToImage == null)
+            if (coreSampleImage.PathToMask == null)
             {
                 coreSampleImage.PathToMask = coreSampleImage.GenerateMaskPath(_config.PathToWWWROOT);
             }
