@@ -22,11 +22,12 @@ const MainPage: React.FC = () => {
 
   const fetchImages = async () => {
     try {
-      console.log(filterParams)
       const data = await getImagesByFilter(filterParams);
       setImagesData(data);
     } catch (error) {
       console.error("Error fetching images:", error);
+      setImagesData([]);
+    } finally {
     }
   };
 

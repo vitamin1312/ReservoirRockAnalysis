@@ -15,13 +15,13 @@ const ImageCard: React.FC<{ data: ImageData }> = ({ data }) => {
             </div>
             <div className="inline-block m-1 w-1/2">
                 <h2 className="text-xl font-semibold text-gray-900 mb-2 truncate overflow-hidden">
-                    {data.imageInfo.name || "Untitled"}
+                    {data.imageInfo?.name ?? "Untitled"}
                 </h2>
                 <p className="text-gray-900 text-sm mb-2 truncate overflow-hidden">
-                    {data.imageInfo.description || "Нет описания"}
+                    {data.imageInfo?.description ?? "Нет описания"}
                 </p>
                 <p className="text-gray-900 text-xs mt-auto truncate overflow-hidden">
-                    Загружено: {new Date(data.imageInfo.uploadDate).toLocaleString() || "Неизвестно"}
+                    Загружено: {new Date(data.imageInfo?.uploadDate).toLocaleString() ?? "Неизвестно"}
                 </p>
             </div>
         </div>

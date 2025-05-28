@@ -13,7 +13,7 @@ interface ImageInfoProps {
 
 const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
   const [fieldsData, setFieldsData] = useState<Array<FieldData>>([]);
-  const [selectedFieldId, setSelectedFieldId] = useState<number>(image?.imageInfo.fieldId || 0);
+  const [selectedFieldId, setSelectedFieldId] = useState<number>(image?.imageInfo?.fieldId ?? 0);
   const [currentImage, setCurrentImage] = useState<ImageData | null>(image);
   const [selectedFunction, setSelectedFunction] = useState<string>('imageFunc');
   const [pixelLengthValue, setpixelLengthValue] = useState("");
@@ -29,7 +29,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
           ...currentImage,
           imageInfo: {
             ...currentImage.imageInfo,
-            pixelLengthRatio: Number(newValue), // ← правильно указываем поле
+            pixelLengthRatio: Number(newValue),
       },
     });
       }
@@ -78,7 +78,7 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
   useEffect(() => {
     setCurrentImage(image);
     if (image) {
-      setSelectedFieldId(image.imageInfo.fieldId?? 0);
+      setSelectedFieldId(image?.imageInfo?.fieldId?? 0);
       setpixelLengthValue(String(image.imageInfo.pixelLengthRatio));
     }
   }, [image]);

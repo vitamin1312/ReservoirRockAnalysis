@@ -17,12 +17,12 @@ const options = [
   { value: 2, label: 'Изображение маски' },
 ];
 
-const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onUpload, fields, refreshFields }) => {
+const ImageUploadForm: React.FC<ImageUploadFormProps> = ({ onUpload, fields }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [newDescription, setNewDescription] = useState("");
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [selectedFieldId, setSelectedFieldId] = useState<number>(-1);
-  const [fieldsData, setFieldsData] = useState<Array<FieldData>>([]);
+  const [_, setFieldsData] = useState<Array<FieldData>>([]);
 
   const [pixelLengthValue, setpixelLengthValue] = useState(localStorage.getItem("pixelLengthValue") || "");
 

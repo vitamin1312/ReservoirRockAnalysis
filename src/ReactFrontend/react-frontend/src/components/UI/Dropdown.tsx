@@ -19,16 +19,16 @@ export default function Dropdown({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchParam, setSearchParam] = useState<string>("");
 
-  const filteredOptions = options.filter((option) =>
-    option.name.toLowerCase().includes(searchParam.toLowerCase())
+  const filteredOptions = options.filter(option => 
+    option && 
+    (option.name ?? '').toLowerCase().includes((searchParam ?? '').toLowerCase())
   );
+    const toggleDropdown = () => setIsOpen(!isOpen);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchParam(e.target.value);
-    setIsOpen(true);
-  };
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchParam(e.target.value);
+      setIsOpen(true);
+    };
 
   const handleOptionClick = (option: FieldData) => {
     onSelect(option.id ?? 0);

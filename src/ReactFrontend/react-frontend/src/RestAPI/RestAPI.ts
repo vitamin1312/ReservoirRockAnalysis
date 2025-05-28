@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { FieldData, ImageData } from "../Models/ImageData";
 import { FilterParams } from "../Models/Filter";
 import CryptoJS from "crypto-js";
@@ -300,7 +300,7 @@ export const getImagesByFilter = async (params: FilterParams): Promise<Array<Ima
       images = imagesFromField.filter((image) => maskImageIds.has(image.id));
     }
 
-    if (params.searchQuery !== undefined) {
+    if (params.searchQuery !== undefined && params.searchQuery !== null) {
       console.log(params.searchQuery)
       const query: string = params.searchQuery.toLocaleLowerCase();
       images = images.filter(image => {
