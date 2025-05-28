@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ImageData, FieldData } from '../../Models/ImageData';
 import ImageConvert from './ImageConvert';
 import { getImageUrl, getImageWithMaskUrl, getAllFields, getMaskUrl, getMaskImageUrl } from '../../RestAPI/RestAPI';
@@ -122,6 +123,13 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
     setCurrentImage(null);
   };
 
+    const navigate = useNavigate();
+
+    const handleOpenEditor = (id: number) => {
+      console.log(id);
+      navigate(`/editor/${id}`);
+    };
+
   return (
     <>
       {currentImage ? (
@@ -149,6 +157,15 @@ const ImageInfoView: React.FC<ImageInfoProps> = ({ image, fetchImages }) => {
               selectedValue={selectedFunction}
               onChange={setSelectedFunction}
             />
+
+           <div className="p-4 space-y-2">
+            <button
+              onClick={() => handleOpenEditor(currentImage.id)}
+              className="w-full bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 m-0.5"
+            >
+              Редактировать маску
+            </button>
+          </div>
 
             <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">Информация</h3>
             <div className="space-y-4">

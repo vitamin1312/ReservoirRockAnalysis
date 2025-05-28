@@ -447,3 +447,32 @@ export const uploadImage = async (
       }
     }
   };
+
+
+
+export const UpdateMask = async (dataURL: string, id: number) => {
+try {
+    const res = await fetch(dataURL);
+    const blob = await res.blob();
+
+    const file = new File([blob], 'mask.png', { type: 'image/png' });
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // URL с id в пути
+    const url = `CoreSampleImages/uploadnewimagemask/${id}`;
+
+    const response = await axiosInstance.post(url, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 30000,
+    });
+
+    console.log('Изображение успешно отправлено:', response.data);
+    return response.data;
+
+  } catch (error: any) {
+    console.error('Ошибка отправки изображения:', error);
+    throw error;
+  }
+};

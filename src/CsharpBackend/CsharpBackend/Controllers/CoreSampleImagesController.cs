@@ -146,6 +146,47 @@ namespace CsharpBackend
             return CreatedAtAction("GetCoreSampleImage", new { id = coreSampleImage.Id }, coreSampleImage);
         }
 
+        [RequestSizeLimit(104857600)]
+        [HttpPost]
+        [Route("uploadnewimagemask/{id}")]
+        public async Task<ActionResult<CoreSampleImage>> UploadImageMask(int id, IFormFile file)
+        {
+            var validation_result = ChechImageFile(file);
+            if (validation_result != null)
+                return validation_result;
+
+            var coreSampleImage = await repository.GetImage(id);
+            if (coreSampleImage == null)
+                return NotFound($"Image with id {id} not found");
+
+            using var memstream = new MemoryStream();
+            await file.CopyToAsync(memstream);
+            byte[] imageData = memstream.ToArray();
+
+            Mat ImageMask = new();
+            CvInvoke.Imdecode(imageData, ImreadModes.Unchanged, ImageMask);
+
+            if (ImageMask == null || ImageMask.IsEmpty)
+                return BadRequest("Can't decode image mask");
+
+            var Mask = DataConverter.ImageMaskToMask(ImageMask);
+
+            using var buf = new VectorOfByte();
+            CvInvoke.Imencode(".png", Mask, buf);
+
+            if (coreSampleImage.PathToImage == null)
+            {
+                coreSampleImage.PathToMask = coreSampleImage.GenerateMaskPath(_config.PathToWWWROOT);
+            }
+
+            await System.IO.File.WriteAllBytesAsync(coreSampleImage.PathToMask, buf.ToArray());
+
+            repository.UpdateInfo(coreSampleImage);
+            await repository.Save();
+
+            return Ok(coreSampleImage);
+        }
+
         [HttpGet]
         [Route("get")]
         [Authorize]

@@ -23,6 +23,7 @@ namespace CsharpBackend.Repository
 
         // Images info
         void UpdateInfo(ImageInfo info);
+        void UpdateInfo(CoreSampleImage coreSampleImage);
 
         // Users
         Task<User?> GetUser(LoginData ld);

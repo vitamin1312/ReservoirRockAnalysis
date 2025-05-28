@@ -1,6 +1,7 @@
 ﻿using CsharpBackend.Data;
 using CsharpBackend.Models;
 using CsharpBackend.Utils;
+using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static CsharpBackend.Controllers.AccountController;
@@ -137,6 +138,11 @@ namespace CsharpBackend.Repository
         public void UpdateInfo(ImageInfo info)
         {
             db.Entry(info).State = EntityState.Modified;
+        }
+
+        public void UpdateInfo(CoreSampleImage coreSampleImage)
+        {
+            db.Entry(coreSampleImage).State = EntityState.Modified;
         }
 
         public async Task DeleteInfo(int id)

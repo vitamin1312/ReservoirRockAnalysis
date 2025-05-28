@@ -5,6 +5,7 @@ import MainPage from './components/Pages/MainPage';
 import ImageUploadPage from './components/Pages/Upload'
 import About from './components/Pages/About';
 import NotFound from './components/Pages/NotFound';
+import EditorPage from './components/Pages/EditorPage';
 import { useEffect } from "react";
 import { setAuthModalOpener } from "./RestAPI/RestAPI";
 
@@ -37,6 +38,7 @@ export default function App() {
               <Route path="/" element={<MainPage />} />
               <Route path="about" element={<About />} />
               <Route path="upload" element={<ImageUploadPage />} />
+              <Route path="/editor/:id" element={<EditorPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
