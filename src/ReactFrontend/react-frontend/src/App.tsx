@@ -38,7 +38,7 @@ export default function App() {
               <Route path="/" element={<MainPage />} />
               <Route path="about" element={<About />} />
               <Route path="upload" element={<ImageUploadPage />} />
-              <Route path="/editor/:id" element={<EditorPage />} />
+              <Route path="editor/:id" element={<EditorPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
