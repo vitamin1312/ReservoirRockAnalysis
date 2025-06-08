@@ -15,6 +15,7 @@ appsettings.json
 # archives
 *.zip
 *.rar
+*.7z
 # app build
 app
 
