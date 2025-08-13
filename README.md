@@ -1,2 +1,2 @@
 # ReservoirRockAnalysis
-[Презентация работы](./docs/Негробов Презентация fin.pdf)
+[Презентация работы](./docs/presentation.pdf)
